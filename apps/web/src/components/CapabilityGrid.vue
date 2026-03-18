@@ -2,10 +2,10 @@
   <section class="panel">
     <div class="section-heading">
       <div>
-        <p class="eyebrow">Capability Matrix</p>
-        <h2>Audit stack lanes</h2>
+        <p class="eyebrow">{{ t('capabilities.eyebrow') }}</p>
+        <h2>{{ t('capabilities.title') }}</h2>
       </div>
-      <span class="capsule">Extensible adapters</span>
+      <span class="capsule">{{ t('capabilities.tag') }}</span>
     </div>
 
     <div class="capability-grid">
@@ -22,11 +22,14 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from '../i18n';
 import type { CapabilityItem } from '../types';
 
 defineProps<{
   items: CapabilityItem[];
 }>();
+
+const { t } = useI18n();
 </script>
 
 <style scoped>
@@ -81,4 +84,3 @@ defineProps<{
   }
 }
 </style>
-

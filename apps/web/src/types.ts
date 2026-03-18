@@ -87,3 +87,106 @@ export interface Mission {
   findings: number;
   nextAction: string;
 }
+
+export interface UserProfile {
+  username: string;
+  displayName: string;
+  role: string;
+}
+
+export interface LoginResponse {
+  access_token: string;
+  token_type: string;
+  user: UserProfile;
+}
+
+export interface RepoConfig {
+  id: string;
+  name: string;
+  provider: string;
+  url: string;
+  branch: string;
+  localPath: string;
+  status: string;
+  defaultBaseUrl: string | null;
+  lastSyncAt: string | null;
+  lastAuditAt: string | null;
+  summary: string;
+}
+
+export interface RepoSyncResponse {
+  repo: RepoConfig;
+  message: string;
+}
+
+export interface AuditStage {
+  name: string;
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  detail: string;
+}
+
+export interface EndpointRecord {
+  method: string;
+  path: string;
+  framework: string;
+  handler: string;
+  file: string;
+  flow: string[];
+}
+
+export interface InterfaceTestPlan {
+  method: string;
+  path: string;
+  objective: string;
+  payloadHint: string;
+}
+
+export interface VulnerabilityFinding {
+  id: string;
+  title: string;
+  category: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  file: string;
+  line: number;
+  summary: string;
+  evidence: string;
+  chain: string[];
+}
+
+export interface AuditJob {
+  id: string;
+  repoId: string;
+  repoName: string;
+  status: 'queued' | 'running' | 'completed' | 'failed';
+  progress: number;
+  currentStep: string;
+  findings: number;
+  endpoints: number;
+  createdAt: string;
+  updatedAt: string;
+  reportId: string | null;
+  stages: AuditStage[];
+  error: string | null;
+}
+
+export interface AuditSummary {
+  filesScanned: number;
+  endpointsDiscovered: number;
+  businessFlowsMapped: number;
+  findingsTotal: number;
+  criticalFindings: number;
+  highFindings: number;
+}
+
+export interface AuditReport {
+  id: string;
+  jobId: string;
+  repoId: string;
+  repoName: string;
+  generatedAt: string;
+  summary: AuditSummary;
+  endpointMap: EndpointRecord[];
+  interfaceTests: InterfaceTestPlan[];
+  findings: VulnerabilityFinding[];
+  recommendations: string[];
+}

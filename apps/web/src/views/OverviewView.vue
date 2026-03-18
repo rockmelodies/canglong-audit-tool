@@ -2,20 +2,18 @@
   <div class="page">
     <section class="hero panel">
       <div>
-        <p class="eyebrow">Adaptive Audit Core</p>
+        <p class="eyebrow">{{ t('overview.heroEyebrow') }}</p>
         <h1>{{ dashboard.codename }} / {{ dashboard.repository }}</h1>
-        <p class="hero-copy">
-          Focus: {{ dashboard.focus }}
-        </p>
+        <p class="hero-copy">{{ t('overview.focusPrefix') }}: {{ dashboard.focus }}</p>
       </div>
       <div class="hero-rail">
         <div class="hero-stat">
-          <span>Confidence</span>
+          <span>{{ t('overview.confidence') }}</span>
           <strong>{{ dashboard.confidence }}</strong>
         </div>
         <div class="hero-stat">
-          <span>Mode</span>
-          <strong>Audit + Hunt + Replay</strong>
+          <span>{{ t('overview.mode') }}</span>
+          <strong>{{ t('overview.modeValue') }}</strong>
         </div>
       </div>
     </section>
@@ -31,10 +29,10 @@
       <section class="panel hot-paths">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Hot Paths</p>
-            <h2>Files demanding proof</h2>
+            <p class="eyebrow">{{ t('overview.hotPathsEyebrow') }}</p>
+            <h2>{{ t('overview.hotPathsTitle') }}</h2>
           </div>
-          <span class="capsule">Evidence-ranked</span>
+          <span class="capsule">{{ t('overview.hotPathsTag') }}</span>
         </div>
 
         <div class="path-list">
@@ -58,13 +56,15 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref, watch } from 'vue';
 import ActivityFeed from '../components/ActivityFeed.vue';
 import AgentOps from '../components/AgentOps.vue';
 import CapabilityGrid from '../components/CapabilityGrid.vue';
 import MetricCard from '../components/MetricCard.vue';
 import ModelMesh from '../components/ModelMesh.vue';
 import ThreatFlow from '../components/ThreatFlow.vue';
+import { useI18n } from '../i18n';
+import type { Locale } from '../i18n/messages';
 import { fetchDashboard, fetchLlmStack } from '../services/api';
 import type { DashboardData, LlmStackData } from '../types';
 
@@ -87,11 +87,25 @@ const llmStack = ref<LlmStackData>({
   runs: [],
 });
 
-onMounted(async () => {
-  const [dashboardData, llmStackData] = await Promise.all([fetchDashboard(), fetchLlmStack()]);
+const { locale, t } = useI18n();
+
+async function loadOverview(selectedLocale: Locale) {
+  const [dashboardData, llmStackData] = await Promise.all([
+    fetchDashboard(selectedLocale),
+    fetchLlmStack(selectedLocale),
+  ]);
+
   dashboard.value = dashboardData;
   llmStack.value = llmStackData;
-});
+}
+
+watch(
+  locale,
+  (selectedLocale) => {
+    void loadOverview(selectedLocale);
+  },
+  { immediate: true },
+);
 </script>
 
 <style scoped>

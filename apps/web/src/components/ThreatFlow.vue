@@ -2,10 +2,10 @@
   <section class="panel flow-card">
     <div class="section-heading">
       <div>
-        <p class="eyebrow">Threat Flow</p>
-        <h2>Suspicion to proof</h2>
+        <p class="eyebrow">{{ t('threatFlow.eyebrow') }}</p>
+        <h2>{{ t('threatFlow.title') }}</h2>
       </div>
-      <span class="capsule">Mission topology</span>
+      <span class="capsule">{{ t('threatFlow.tag') }}</span>
     </div>
 
     <div class="flow-grid">
@@ -19,11 +19,14 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from '../i18n';
 import type { FlowStage } from '../types';
 
 defineProps<{
   stages: FlowStage[];
 }>();
+
+const { t } = useI18n();
 </script>
 
 <style scoped>
@@ -79,4 +82,3 @@ defineProps<{
   }
 }
 </style>
-

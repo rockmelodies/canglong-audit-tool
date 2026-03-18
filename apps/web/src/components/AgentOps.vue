@@ -3,10 +3,10 @@
     <section class="panel">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">Agent Blueprints</p>
-          <h2>Research workflows</h2>
+          <p class="eyebrow">{{ t('agentOps.blueprintsEyebrow') }}</p>
+          <h2>{{ t('agentOps.blueprintsTitle') }}</h2>
         </div>
-        <span class="capsule">{{ blueprints.length }} templates</span>
+        <span class="capsule">{{ t('agentOps.blueprintCount', { count: blueprints.length }) }}</span>
       </div>
 
       <div class="blueprint-list">
@@ -27,10 +27,10 @@
     <section class="panel">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">Agent Runs</p>
-          <h2>Live model-assisted research</h2>
+          <p class="eyebrow">{{ t('agentOps.runsEyebrow') }}</p>
+          <h2>{{ t('agentOps.runsTitle') }}</h2>
         </div>
-        <span class="capsule">{{ runs.length }} active</span>
+        <span class="capsule">{{ t('agentOps.activeCount', { count: runs.length }) }}</span>
       </div>
 
       <div class="run-list">
@@ -54,12 +54,15 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from '../i18n';
 import type { AgentBlueprint, AgentRun } from '../types';
 
 defineProps<{
   blueprints: AgentBlueprint[];
   runs: AgentRun[];
 }>();
+
+const { t } = useI18n();
 </script>
 
 <style scoped>

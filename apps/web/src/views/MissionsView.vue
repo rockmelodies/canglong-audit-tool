@@ -2,35 +2,43 @@
   <div class="page">
     <section class="hero panel missions-hero">
       <div>
-        <p class="eyebrow">Mission Orchestration</p>
-        <h1>Queue, prove, replay</h1>
-        <p>
-          Missions combine semantic review, dockerized verification, reverse-engineering handoff, and guided
-          breakpoints into one execution model.
-        </p>
+        <p class="eyebrow">{{ t('missions.heroEyebrow') }}</p>
+        <h1>{{ t('missions.title') }}</h1>
+        <p>{{ t('missions.description') }}</p>
       </div>
       <div class="hero-tags">
-        <span class="capsule">Docker profiles</span>
-        <span class="capsule">Decompiler lanes</span>
-        <span class="capsule">Runtime recipes</span>
+        <span class="capsule">{{ t('missions.tagDocker') }}</span>
+        <span class="capsule">{{ t('missions.tagDecompiler') }}</span>
+        <span class="capsule">{{ t('missions.tagRuntime') }}</span>
       </div>
     </section>
 
-    <MissionRail title="Priority Missions" :items="missions" />
+    <MissionRail :title="t('missions.priorityTitle')" :items="missions" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref, watch } from 'vue';
 import MissionRail from '../components/MissionRail.vue';
+import { useI18n } from '../i18n';
+import type { Locale } from '../i18n/messages';
 import { fetchMissions } from '../services/api';
 import type { Mission } from '../types';
 
 const missions = ref<Mission[]>([]);
+const { locale, t } = useI18n();
 
-onMounted(async () => {
-  missions.value = await fetchMissions();
-});
+async function loadMissions(selectedLocale: Locale) {
+  missions.value = await fetchMissions(selectedLocale);
+}
+
+watch(
+  locale,
+  (selectedLocale) => {
+    void loadMissions(selectedLocale);
+  },
+  { immediate: true },
+);
 </script>
 
 <style scoped>
@@ -76,4 +84,3 @@ onMounted(async () => {
   }
 }
 </style>
-

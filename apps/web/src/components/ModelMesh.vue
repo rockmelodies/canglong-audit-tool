@@ -2,10 +2,10 @@
   <section class="panel">
     <div class="section-heading">
       <div>
-        <p class="eyebrow">Model Mesh</p>
-        <h2>Provider routing fabric</h2>
+        <p class="eyebrow">{{ t('modelMesh.eyebrow') }}</p>
+        <h2>{{ t('modelMesh.title') }}</h2>
       </div>
-      <span class="capsule">Heterogeneous inference</span>
+      <span class="capsule">{{ t('modelMesh.tag') }}</span>
     </div>
 
     <p class="strategy-copy">{{ strategy }}</p>
@@ -29,12 +29,15 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from '../i18n';
 import type { ModelProvider } from '../types';
 
 defineProps<{
   strategy: string;
   providers: ModelProvider[];
 }>();
+
+const { t } = useI18n();
 </script>
 
 <style scoped>
@@ -117,4 +120,3 @@ defineProps<{
   }
 }
 </style>
-

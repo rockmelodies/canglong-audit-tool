@@ -1,25 +1,34 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, Query, status
 
-from app.models.schemas import AgentRun, LlmStackResponse, ResearchAgentCreate
-from app.services.mock_data import agent_run_store, build_llm_stack
+from app.models.schemas import AgentRun, LlmStackResponse, ResearchAgentCreate, UserProfile
+from app.services.auth_service import get_current_user
+from app.services.mock_data import agent_run_store, build_llm_stack, normalize_locale
 
 router = APIRouter(prefix="/api/llm", tags=["llm"])
 
 
 @router.get("/stack", response_model=LlmStackResponse)
-def get_llm_stack() -> LlmStackResponse:
-    return build_llm_stack()
+def get_llm_stack(
+    lang: str = Query(default="en"),
+    current_user: UserProfile = Depends(get_current_user),
+) -> LlmStackResponse:
+    return build_llm_stack(lang)
 
 
 @router.post("/research-agents", response_model=AgentRun, status_code=status.HTTP_201_CREATED)
-def create_research_agent(payload: ResearchAgentCreate) -> AgentRun:
-    provider = payload.preferredProvider or "Router"
+def create_research_agent(
+    payload: ResearchAgentCreate,
+    lang: str = Query(default="en"),
+    current_user: UserProfile = Depends(get_current_user),
+) -> AgentRun:
+    locale = normalize_locale(lang)
+    provider = payload.preferredProvider or ("模型路由" if locale == "zh-CN" else "Router")
     run = AgentRun(
         id=agent_run_store.next_id(),
-        agent="Research Agent",
+        agent="调研 Agent" if locale == "zh-CN" else "Research Agent",
         objective=f"{payload.objective} @ {payload.target}",
         provider=provider,
-        state="Queued",
-        result="Pending model selection, context packing, and tool plan.",
+        state="排队中" if locale == "zh-CN" else "Queued",
+        result="等待模型选择、上下文装箱与工具计划。" if locale == "zh-CN" else "Pending model selection, context packing, and tool plan.",
     )
     return agent_run_store.add_run(run)

@@ -1,9 +1,10 @@
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 Tone = Literal["accent", "warning", "neutral"]
+AuditStatus = Literal["queued", "running", "completed", "failed"]
 
 
 class MetricCardItem(BaseModel):
@@ -106,3 +107,122 @@ class ResearchAgentCreate(BaseModel):
     objective: str
     target: str
     preferredProvider: str | None = None
+
+
+class UserProfile(BaseModel):
+    username: str
+    displayName: str
+    role: str
+
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserProfile
+
+
+class RepoConfig(BaseModel):
+    id: str
+    name: str
+    provider: str
+    url: str
+    branch: str
+    localPath: str
+    status: str
+    defaultBaseUrl: str | None = None
+    lastSyncAt: str | None = None
+    lastAuditAt: str | None = None
+    summary: str
+
+
+class RepoCreate(BaseModel):
+    url: str
+    branch: str = "main"
+    name: str | None = None
+    defaultBaseUrl: str | None = None
+
+
+class RepoSyncResponse(BaseModel):
+    repo: RepoConfig
+    message: str
+
+
+class AuditStage(BaseModel):
+    name: str
+    status: Literal["pending", "running", "completed", "failed"]
+    detail: str
+
+
+class EndpointRecord(BaseModel):
+    method: str
+    path: str
+    framework: str
+    handler: str
+    file: str
+    flow: list[str] = Field(default_factory=list)
+
+
+class InterfaceTestPlan(BaseModel):
+    method: str
+    path: str
+    objective: str
+    payloadHint: str
+
+
+class VulnerabilityFinding(BaseModel):
+    id: str
+    title: str
+    category: str
+    severity: Literal["critical", "high", "medium", "low"]
+    file: str
+    line: int
+    summary: str
+    evidence: str
+    chain: list[str] = Field(default_factory=list)
+
+
+class AuditJob(BaseModel):
+    id: str
+    repoId: str
+    repoName: str
+    status: AuditStatus
+    progress: int
+    currentStep: str
+    findings: int
+    endpoints: int
+    createdAt: str
+    updatedAt: str
+    reportId: str | None = None
+    stages: list[AuditStage] = Field(default_factory=list)
+    error: str | None = None
+
+
+class AuditJobCreate(BaseModel):
+    repoId: str
+
+
+class AuditSummary(BaseModel):
+    filesScanned: int
+    endpointsDiscovered: int
+    businessFlowsMapped: int
+    findingsTotal: int
+    criticalFindings: int
+    highFindings: int
+
+
+class AuditReport(BaseModel):
+    id: str
+    jobId: str
+    repoId: str
+    repoName: str
+    generatedAt: str
+    summary: AuditSummary
+    endpointMap: list[EndpointRecord]
+    interfaceTests: list[InterfaceTestPlan]
+    findings: list[VulnerabilityFinding]
+    recommendations: list[str]

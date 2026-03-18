@@ -5,7 +5,7 @@
         <div class="brand-mark">苍</div>
         <div>
           <p class="eyebrow">CANG LONG</p>
-          <h1>Command Center</h1>
+          <h1>{{ t('shell.title') }}</h1>
         </div>
       </div>
 
@@ -16,13 +16,32 @@
         </RouterLink>
       </nav>
 
-      <div class="sidebar-card">
-        <p class="eyebrow">Operating Doctrine</p>
-        <h3>Low noise, high proof</h3>
-        <p>
-          Evidence-first audit flow with runtime confirmation, dockerized reenactment, and reverse-engineering lanes.
-        </p>
+      <div class="language-card">
+        <p class="eyebrow">{{ t('shell.languageEyebrow') }}</p>
+        <h3>{{ t('shell.languageTitle') }}</h3>
+        <div class="language-actions">
+          <button
+            v-for="option in locales"
+            :key="option.code"
+            type="button"
+            class="language-button"
+            :class="{ active: locale === option.code }"
+            @click="setLocale(option.code)"
+          >
+            {{ option.label }}
+          </button>
+        </div>
       </div>
+
+      <div class="sidebar-card">
+        <p class="eyebrow">{{ t('shell.doctrineEyebrow') }}</p>
+        <h3>{{ t('shell.doctrineTitle') }}</h3>
+        <p>{{ t('shell.doctrineBody') }}</p>
+      </div>
+
+      <button type="button" class="logout-button" @click="handleLogout">
+        {{ t('shell.logout') }}
+      </button>
     </aside>
 
     <main class="content">
@@ -32,10 +51,24 @@
 </template>
 
 <script setup lang="ts">
-const navItems = [
-  { to: '/overview', label: 'Overview', meta: 'Signal map' },
-  { to: '/missions', label: 'Missions', meta: 'Audit queue' },
-];
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { clearSession } from '../auth/session';
+import { useI18n } from '../i18n';
+
+const router = useRouter();
+const { locale, locales, setLocale, t } = useI18n();
+
+const navItems = computed(() => [
+  { to: '/overview', label: t('shell.nav.overviewLabel'), meta: t('shell.nav.overviewMeta') },
+  { to: '/workspace', label: t('shell.nav.workspaceLabel'), meta: t('shell.nav.workspaceMeta') },
+  { to: '/missions', label: t('shell.nav.missionsLabel'), meta: t('shell.nav.missionsMeta') },
+]);
+
+function handleLogout() {
+  clearSession();
+  void router.push('/login');
+}
 </script>
 
 <style scoped>
@@ -110,8 +143,44 @@ const navItems = [
   transform: translateY(-1px);
 }
 
+.language-card {
+  padding: 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.language-card h3 {
+  margin: 8px 0 0;
+}
+
+.language-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.language-button {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: 180ms ease;
+}
+
+.language-button.active {
+  border-color: rgba(0, 212, 170, 0.45);
+  background: rgba(0, 212, 170, 0.12);
+}
+
+.language-button:hover {
+  transform: translateY(-1px);
+}
+
 .sidebar-card {
-  margin-top: auto;
   padding: 18px;
   border-radius: 20px;
   background: linear-gradient(180deg, rgba(255, 122, 26, 0.14), rgba(255, 255, 255, 0.02));
@@ -127,6 +196,16 @@ const navItems = [
   color: var(--text-dim);
 }
 
+.logout-button {
+  margin-top: auto;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-main);
+  cursor: pointer;
+}
+
 .content {
   min-width: 0;
 }
@@ -140,6 +219,9 @@ const navItems = [
     position: static;
     height: auto;
   }
+
+  .logout-button {
+    margin-top: 0;
+  }
 }
 </style>
-

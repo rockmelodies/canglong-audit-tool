@@ -2,10 +2,10 @@
   <section class="panel">
     <div class="section-heading">
       <div>
-        <p class="eyebrow">Activity Feed</p>
-        <h2>Latest mission evidence</h2>
+        <p class="eyebrow">{{ t('activityFeed.eyebrow') }}</p>
+        <h2>{{ t('activityFeed.title') }}</h2>
       </div>
-      <span class="capsule">Live cadence</span>
+      <span class="capsule">{{ t('activityFeed.tag') }}</span>
     </div>
 
     <div class="feed-list">
@@ -24,11 +24,14 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from '../i18n';
 import type { FeedEvent } from '../types';
 
 defineProps<{
   items: FeedEvent[];
 }>();
+
+const { t } = useI18n();
 </script>
 
 <style scoped>
@@ -82,4 +85,3 @@ defineProps<{
   }
 }
 </style>
-

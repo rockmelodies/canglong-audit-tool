@@ -2,10 +2,10 @@
   <section class="panel">
     <div class="section-heading">
       <div>
-        <p class="eyebrow">Mission Queue</p>
+        <p class="eyebrow">{{ t('missionRail.eyebrow') }}</p>
         <h2>{{ title }}</h2>
       </div>
-      <span class="capsule">{{ items.length }} active</span>
+      <span class="capsule">{{ t('missionRail.activeCount', { count: items.length }) }}</span>
     </div>
 
     <div class="mission-list">
@@ -19,8 +19,8 @@
         </div>
         <div class="mission-meta">
           <span>{{ mission.mode }}</span>
-          <span>{{ mission.confidence }} confidence</span>
-          <span>{{ mission.findings }} findings</span>
+          <span>{{ t('missionRail.confidence', { value: mission.confidence }) }}</span>
+          <span>{{ t('missionRail.findings', { count: mission.findings }) }}</span>
         </div>
         <p class="mission-action">{{ mission.nextAction }}</p>
       </article>
@@ -29,12 +29,15 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from '../i18n';
 import type { Mission } from '../types';
 
 defineProps<{
   title: string;
   items: Mission[];
 }>();
+
+const { t } = useI18n();
 </script>
 
 <style scoped>
@@ -92,4 +95,3 @@ defineProps<{
   color: var(--text-main);
 }
 </style>
-
