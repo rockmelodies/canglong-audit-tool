@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 Tone = Literal["accent", "warning", "neutral"]
 AuditStatus = Literal["queued", "running", "completed", "failed"]
+ApplicabilityStatus = Literal["applicable", "blocked", "uncertain"]
 
 
 class MetricCardItem(BaseModel):
@@ -130,6 +131,7 @@ class RepoConfig(BaseModel):
     id: str
     name: str
     provider: str
+    sourceType: Literal["git", "local"]
     url: str
     branch: str
     localPath: str
@@ -141,10 +143,12 @@ class RepoConfig(BaseModel):
 
 
 class RepoCreate(BaseModel):
-    url: str
+    sourceType: Literal["git", "local"] = "git"
+    url: str | None = None
     branch: str = "main"
     name: str | None = None
     defaultBaseUrl: str | None = None
+    localPath: str | None = None
 
 
 class RepoSyncResponse(BaseModel):
@@ -186,6 +190,62 @@ class VulnerabilityFinding(BaseModel):
     chain: list[str] = Field(default_factory=list)
 
 
+class DependencyEvidence(BaseModel):
+    ecosystem: str
+    name: str
+    version: str | None = None
+    sourceFile: str
+    scope: str | None = None
+
+
+class EnvironmentFingerprint(BaseModel):
+    languages: list[str] = Field(default_factory=list)
+    frameworks: list[str] = Field(default_factory=list)
+    buildFiles: list[str] = Field(default_factory=list)
+    javaVersionHint: str | None = None
+    servletNamespace: str | None = None
+    runtimeHints: list[str] = Field(default_factory=list)
+    packaging: list[str] = Field(default_factory=list)
+
+
+class ApplicabilityCheck(BaseModel):
+    target: str
+    status: ApplicabilityStatus
+    reason: str
+
+
+class ExploitChainCandidate(BaseModel):
+    id: str
+    name: str
+    category: str
+    confidence: str
+    rationale: str
+    prerequisites: list[str] = Field(default_factory=list)
+    matchedDependencies: list[str] = Field(default_factory=list)
+    sourceFindings: list[str] = Field(default_factory=list)
+    checks: list[ApplicabilityCheck] = Field(default_factory=list)
+    nextStep: str
+
+
+class FalsePositiveControl(BaseModel):
+    rule: str
+    verdict: Literal["kept", "demoted", "blocked"]
+    detail: str
+
+
+class DockerVerification(BaseModel):
+    status: Literal["skipped", "planned", "running", "completed", "failed"]
+    strategy: str
+    dockerfile: str | None = None
+    composeFile: str | None = None
+    imageTag: str | None = None
+    containerName: str | None = None
+    commands: list[str] = Field(default_factory=list)
+    logs: list[str] = Field(default_factory=list)
+    requiresLogin: bool = False
+    loginHint: str | None = None
+
+
 class AuditJob(BaseModel):
     id: str
     repoId: str
@@ -198,6 +258,7 @@ class AuditJob(BaseModel):
     createdAt: str
     updatedAt: str
     reportId: str | None = None
+    verificationStatus: Literal["skipped", "planned", "running", "completed", "failed"] = "skipped"
     stages: list[AuditStage] = Field(default_factory=list)
     error: str | None = None
 
@@ -222,6 +283,11 @@ class AuditReport(BaseModel):
     repoName: str
     generatedAt: str
     summary: AuditSummary
+    environment: EnvironmentFingerprint
+    dependencies: list[DependencyEvidence]
+    exploitChains: list[ExploitChainCandidate]
+    falsePositiveControls: list[FalsePositiveControl]
+    dockerVerification: DockerVerification
     endpointMap: list[EndpointRecord]
     interfaceTests: list[InterfaceTestPlan]
     findings: list[VulnerabilityFinding]
