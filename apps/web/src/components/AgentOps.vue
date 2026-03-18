@@ -17,8 +17,17 @@
           </div>
           <p>{{ blueprint.purpose }}</p>
           <strong>{{ blueprint.modelStrategy }}</strong>
+          <div class="meta-line">
+            <span>{{ t('agentOps.defaultModel') }}: {{ blueprint.defaultModel ?? '-' }}</span>
+          </div>
           <div class="tag-row">
             <span v-for="output in blueprint.outputs" :key="output" class="chip">{{ output }}</span>
+          </div>
+          <div class="enablement-row">
+            <span class="label">{{ t('agentOps.enablement') }}</span>
+            <div class="tag-row compact">
+              <span v-for="item in blueprint.enablement" :key="item" class="stack-chip">{{ item }}</span>
+            </div>
           </div>
         </article>
       </div>
@@ -47,6 +56,10 @@
             <span>{{ run.id }}</span>
           </div>
           <p class="run-result">{{ run.result }}</p>
+          <div v-if="run.stack" class="stack-box">
+            <span class="label">{{ t('agentOps.stack') }}</span>
+            <strong>{{ run.stack }}</strong>
+          </div>
         </article>
       </div>
     </section>
@@ -113,15 +126,22 @@ const { t } = useI18n();
 
 .blueprint-card p,
 .run-top p,
-.run-result {
+.run-result,
+.meta-line,
+.label {
   color: var(--text-dim);
 }
 
-.blueprint-card strong {
+.blueprint-card strong,
+.stack-box strong {
   display: block;
   margin-top: 14px;
   color: var(--text-soft);
   line-height: 1.5;
+}
+
+.meta-line {
+  margin-top: 14px;
 }
 
 .tag-row {
@@ -131,15 +151,35 @@ const { t } = useI18n();
   margin-top: 18px;
 }
 
-.chip {
+.tag-row.compact {
+  margin-top: 10px;
+}
+
+.chip,
+.stack-chip {
   display: inline-flex;
   align-items: center;
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(255, 122, 26, 0.08);
-  border: 1px solid rgba(255, 122, 26, 0.18);
   color: var(--text-soft);
   font-size: 0.82rem;
+}
+
+.chip {
+  background: rgba(255, 122, 26, 0.08);
+  border: 1px solid rgba(255, 122, 26, 0.18);
+}
+
+.stack-chip {
+  background: rgba(0, 212, 170, 0.08);
+  border: 1px solid rgba(0, 212, 170, 0.18);
+}
+
+.enablement-row,
+.stack-box {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .run-meta {

@@ -49,6 +49,16 @@ class ModelProvider(BaseModel):
     fit: str
     strengths: list[str]
     deployment: str
+    priority: str | None = None
+    augmentation: list[str] = Field(default_factory=list)
+
+
+class EnablementLayer(BaseModel):
+    id: str
+    name: str
+    kind: Literal["prompt-pack", "mcp", "toolchain", "skill-pack", "policy"]
+    summary: str
+    impact: str
 
 
 class AgentBlueprint(BaseModel):
@@ -57,6 +67,8 @@ class AgentBlueprint(BaseModel):
     modelStrategy: str
     outputs: list[str]
     status: str
+    defaultModel: str | None = None
+    enablement: list[str] = Field(default_factory=list)
 
 
 class AgentRun(BaseModel):
@@ -66,13 +78,52 @@ class AgentRun(BaseModel):
     provider: str
     state: str
     result: str
+    stack: str | None = None
 
 
 class LlmStackResponse(BaseModel):
     strategy: str
     providers: list[ModelProvider]
+    enablement: list[EnablementLayer]
     blueprints: list[AgentBlueprint]
     runs: list[AgentRun]
+
+
+class ModelConnection(BaseModel):
+    id: str
+    displayName: str
+    provider: str
+    modelSlug: str
+    description: str
+    baseUrl: str
+    apiKeySet: bool = False
+    apiKeyPreview: str | None = None
+    enabled: bool = False
+    isDefault: bool = False
+    editable: bool = True
+    status: Literal["configured", "incomplete"] = "incomplete"
+    setupHint: str
+    capabilityTags: list[str] = Field(default_factory=list)
+
+
+class ModelConnectionUpsert(BaseModel):
+    displayName: str
+    provider: str
+    modelSlug: str
+    description: str
+    baseUrl: str
+    apiKey: str | None = None
+    enabled: bool = False
+    capabilityTags: list[str] = Field(default_factory=list)
+
+
+class ModelSettingsResponse(BaseModel):
+    recommendedModelId: str | None = None
+    hasUsableModel: bool = False
+    defaultModelLabel: str | None = None
+    nextAction: str
+    guidance: list[str] = Field(default_factory=list)
+    models: list[ModelConnection] = Field(default_factory=list)
 
 
 class DashboardResponse(BaseModel):

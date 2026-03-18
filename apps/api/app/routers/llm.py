@@ -22,13 +22,14 @@ def create_research_agent(
     current_user: UserProfile = Depends(get_current_user),
 ) -> AgentRun:
     locale = normalize_locale(lang)
-    provider = payload.preferredProvider or ("模型路由" if locale == "zh-CN" else "Router")
+    provider = payload.preferredProvider or ("GPT-5.4" if locale == "zh-CN" else "GPT-5.4")
     run = AgentRun(
         id=agent_run_store.next_id(),
         agent="调研 Agent" if locale == "zh-CN" else "Research Agent",
         objective=f"{payload.objective} @ {payload.target}",
         provider=provider,
         state="排队中" if locale == "zh-CN" else "Queued",
-        result="等待模型选择、上下文装箱与工具计划。" if locale == "zh-CN" else "Pending model selection, context packing, and tool plan.",
+        result="等待提示词包、MCP 上下文与工具链装配。" if locale == "zh-CN" else "Pending prompt-pack selection, MCP context packing, and toolchain plan.",
+        stack="GPT-5.4 + Audit Prompt Pack + Repository MCP + Runtime Toolchain",
     )
     return agent_run_store.add_run(run)

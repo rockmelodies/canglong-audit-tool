@@ -5,6 +5,8 @@ import type {
   AuditReport,
   DashboardData,
   LlmStackData,
+  ModelConnection,
+  ModelSettingsData,
   Mission,
   RepoConfig,
   RepoSyncResponse,
@@ -274,6 +276,7 @@ function buildLlmStackFallback(locale: Locale): LlmStackData {
     return {
       strategy: '将子任务路由到最匹配的模型，综合考虑推理深度、上下文大小、多模态制品、工具调用、部署边界和成本。',
       providers: [],
+      enablement: [],
       blueprints: [],
       runs: [],
     };
@@ -283,6 +286,7 @@ function buildLlmStackFallback(locale: Locale): LlmStackData {
     strategy:
       'Route each subtask to the model best suited for reasoning depth, context size, multimodal artifacts, tool use, deployment boundary, and cost.',
     providers: [],
+    enablement: [],
     blueprints: [],
     runs: [],
   };
@@ -298,6 +302,55 @@ export function fetchMissions(locale: Locale) {
 
 export function fetchLlmStack(locale: Locale) {
   return request<LlmStackData>('/api/llm/stack', locale, undefined, buildLlmStackFallback(locale));
+}
+
+export function fetchModelSettings(locale: Locale) {
+  return request<ModelSettingsData>('/api/settings/models', locale);
+}
+
+export function updateModelSettings(
+  locale: Locale,
+  modelId: string,
+  payload: {
+    displayName: string;
+    provider: string;
+    modelSlug: string;
+    description: string;
+    baseUrl: string;
+    apiKey?: string;
+    enabled: boolean;
+    capabilityTags: string[];
+  },
+) {
+  return request<ModelConnection>(`/api/settings/models/${modelId}`, locale, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+}
+
+export function createModelSettings(
+  locale: Locale,
+  payload: {
+    displayName: string;
+    provider: string;
+    modelSlug: string;
+    description: string;
+    baseUrl: string;
+    apiKey?: string;
+    enabled: boolean;
+    capabilityTags: string[];
+  },
+) {
+  return request<ModelConnection>('/api/settings/models', locale, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export function setDefaultModel(locale: Locale, modelId: string) {
+  return request<ModelConnection>(`/api/settings/models/${modelId}/default`, locale, {
+    method: 'POST',
+  });
 }
 
 export function fetchRepos(locale: Locale) {

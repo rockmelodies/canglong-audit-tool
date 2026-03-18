@@ -63,6 +63,7 @@ const navItems = computed(() => [
   { to: '/overview', label: t('shell.nav.overviewLabel'), meta: t('shell.nav.overviewMeta') },
   { to: '/workspace', label: t('shell.nav.workspaceLabel'), meta: t('shell.nav.workspaceMeta') },
   { to: '/missions', label: t('shell.nav.missionsLabel'), meta: t('shell.nav.missionsMeta') },
+  { to: '/settings', label: t('shell.nav.settingsLabel'), meta: t('shell.nav.settingsMeta') },
 ]);
 
 function handleLogout() {

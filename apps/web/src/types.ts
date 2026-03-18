@@ -39,6 +39,16 @@ export interface ModelProvider {
   fit: string;
   strengths: string[];
   deployment: string;
+  priority: string | null;
+  augmentation: string[];
+}
+
+export interface EnablementLayer {
+  id: string;
+  name: string;
+  kind: 'prompt-pack' | 'mcp' | 'toolchain' | 'skill-pack' | 'policy';
+  summary: string;
+  impact: string;
 }
 
 export interface AgentBlueprint {
@@ -47,6 +57,8 @@ export interface AgentBlueprint {
   modelStrategy: string;
   outputs: string[];
   status: string;
+  defaultModel: string | null;
+  enablement: string[];
 }
 
 export interface AgentRun {
@@ -56,6 +68,7 @@ export interface AgentRun {
   provider: string;
   state: string;
   result: string;
+  stack: string | null;
 }
 
 export interface DashboardData {
@@ -73,8 +86,35 @@ export interface DashboardData {
 export interface LlmStackData {
   strategy: string;
   providers: ModelProvider[];
+  enablement: EnablementLayer[];
   blueprints: AgentBlueprint[];
   runs: AgentRun[];
+}
+
+export interface ModelConnection {
+  id: string;
+  displayName: string;
+  provider: string;
+  modelSlug: string;
+  description: string;
+  baseUrl: string;
+  apiKeySet: boolean;
+  apiKeyPreview: string | null;
+  enabled: boolean;
+  isDefault: boolean;
+  editable: boolean;
+  status: 'configured' | 'incomplete';
+  setupHint: string;
+  capabilityTags: string[];
+}
+
+export interface ModelSettingsData {
+  recommendedModelId: string | null;
+  hasUsableModel: boolean;
+  defaultModelLabel: string | null;
+  nextAction: string;
+  guidance: string[];
+  models: ModelConnection[];
 }
 
 export interface Mission {

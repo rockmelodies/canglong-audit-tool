@@ -32,8 +32,9 @@
 > Canglong is designed to act less like a noisy scanner and more like a senior security reviewer:
 > trace evidence, reduce false positives, generate proof paths, orchestrate docker ranges, and use the right model or agent for the right security task.
 
-![img_1.png](img_1.png)
-![img.png](img.png)
+![img_5.png](img_5.png)
+![img_3.png](img_3.png)![img.png](img.png)
+![img_4.png](img_4.png)
 
 ## Table Of Contents
 
@@ -123,16 +124,18 @@ Canglong should not promote every reachable sink as a severe finding. The intend
 
 ## Model Mesh
 
-The model layer is intentionally heterogeneous. Different security subtasks need different strengths.
+The current direction is not to overfit the product to a long vendor list. The default path is:
+
+- start with a frontier general-purpose model for most agent work
+- strengthen it with prompt packs, MCP context, toolchains, and reusable skills
+- switch models only when long-context review, multimodal artifact digestion, or private deployment clearly wins
 
 | Provider Lane | Best Fit | Example Security Tasks |
 | --- | --- | --- |
-| OpenAI | deep reasoning, tool use, structured outputs | exploit-chain reasoning, agent orchestration, synthesis |
-| Anthropic | long-context review | large codebase review, contradiction analysis, guard validation |
-| Gemini | multimodal and large artifact digestion | decompiler artifacts, screenshots, diagrams, binary summaries |
-| Qwen | self-hosted bilingual execution | private deployments, on-prem audit assistance |
-| DeepSeek | cost-efficient broad reasoning | hypothesis sweeps, wide triage passes |
-| Self-hosted mesh | isolation and policy control | air-gapped review, sensitive code paths, internal inference |
+| GPT-5.4 class models | default audit orchestration, tool use, structured reasoning | exploit-chain expansion, workflow execution, report synthesis |
+| Opus-class long-context models | large review passes and contradiction handling | guard validation, policy-heavy review, repository second pass |
+| Gemini-class multimodal models | screenshots, decompile artifacts, diagrams, binary-heavy evidence | artifact digestion, reverse-engineering assistance, interface recovery |
+| Self-hosted general models | privacy-bound or air-gapped execution | internal deployments, sensitive code review, controlled environments |
 
 ### Planned Research Agents
 
@@ -206,9 +209,10 @@ The web app defaults to `http://127.0.0.1:9000` for API access. Override with `V
 ### Workspace Flow
 
 1. Sign in from `/login`.
-2. Register either a remote Git repository or a local source directory from the workspace page.
-3. Sync the repository when needed, then launch an audit job.
-4. Open the generated report to inspect environment fingerprints, dependency evidence, discovered endpoints, candidate exploit chains, false-positive controls, docker verification hints, and remediation guidance.
+2. Open `/settings` and configure one default model first. Custom OpenAI-compatible endpoints are supported.
+3. Go to `/workspace`, register either a remote Git repository or a local source directory, then sync it when needed.
+4. Click the green `Start Audit` button on the repository card.
+5. Open the generated report to inspect environment fingerprints, dependency evidence, discovered endpoints, candidate exploit chains, false-positive controls, docker verification hints, and remediation guidance.
 
 ## Current Snapshot
 
@@ -233,6 +237,10 @@ The current repository already ships a usable end-to-end demo flow:
 | `POST` | `/api/missions` | create a new audit mission |
 | `GET` | `/api/llm/stack` | model mesh, provider strategy, and agent templates |
 | `POST` | `/api/llm/research-agents` | queue a model-assisted research agent |
+| `GET` | `/api/settings/models` | fetch model configuration, readiness, and guidance |
+| `POST` | `/api/settings/models` | add a custom model endpoint |
+| `PUT` | `/api/settings/models/{model_id}` | update a model endpoint |
+| `POST` | `/api/settings/models/{model_id}/default` | mark a model as the default audit lane |
 | `GET` | `/api/repos` | list registered repositories |
 | `POST` | `/api/repos` | register a Git or local repository |
 | `POST` | `/api/repos/{repo_id}/sync` | clone or pull a Git repository, or validate a local path |

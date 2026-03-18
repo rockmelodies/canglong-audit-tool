@@ -47,7 +47,11 @@
       </section>
     </section>
 
-    <ModelMesh :strategy="llmStack.strategy" :providers="llmStack.providers" />
+    <ModelMesh
+      :strategy="llmStack.strategy"
+      :providers="llmStack.providers"
+      :enablement="llmStack.enablement"
+    />
 
     <AgentOps :blueprints="llmStack.blueprints" :runs="llmStack.runs" />
 
@@ -83,6 +87,7 @@ const dashboard = ref<DashboardData>({
 const llmStack = ref<LlmStackData>({
   strategy: '',
   providers: [],
+  enablement: [],
   blueprints: [],
   runs: [],
 });

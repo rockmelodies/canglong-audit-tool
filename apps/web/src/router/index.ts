@@ -4,6 +4,7 @@ import LoginView from '../views/LoginView.vue';
 import MissionsView from '../views/MissionsView.vue';
 import OverviewView from '../views/OverviewView.vue';
 import ReportView from '../views/ReportView.vue';
+import SettingsView from '../views/SettingsView.vue';
 import WorkspaceView from '../views/WorkspaceView.vue';
 
 const router = createRouter({
@@ -35,6 +36,12 @@ const router = createRouter({
       path: '/missions',
       name: 'missions',
       component: MissionsView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: SettingsView,
       meta: { requiresAuth: true },
     },
     {
