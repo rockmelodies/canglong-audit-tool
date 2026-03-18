@@ -32,6 +32,9 @@
 > Canglong is designed to act less like a noisy scanner and more like a senior security reviewer:
 > trace evidence, reduce false positives, generate proof paths, orchestrate docker ranges, and use the right model or agent for the right security task.
 
+![img_1.png](img_1.png)
+![img.png](img.png)
+
 ## Table Of Contents
 
 - [Why Canglong](#why-canglong)
