@@ -104,6 +104,7 @@ export interface RepoConfig {
   id: string;
   name: string;
   provider: string;
+  sourceType: 'git' | 'local';
   url: string;
   branch: string;
   localPath: string;
@@ -123,6 +124,62 @@ export interface AuditStage {
   name: string;
   status: 'pending' | 'running' | 'completed' | 'failed';
   detail: string;
+}
+
+export interface DependencyEvidence {
+  ecosystem: string;
+  name: string;
+  version: string | null;
+  sourceFile: string;
+  scope: string | null;
+}
+
+export interface EnvironmentFingerprint {
+  languages: string[];
+  frameworks: string[];
+  buildFiles: string[];
+  javaVersionHint: string | null;
+  servletNamespace: string | null;
+  runtimeHints: string[];
+  packaging: string[];
+}
+
+export interface ApplicabilityCheck {
+  target: string;
+  status: 'applicable' | 'blocked' | 'uncertain';
+  reason: string;
+}
+
+export interface ExploitChainCandidate {
+  id: string;
+  name: string;
+  category: string;
+  confidence: string;
+  rationale: string;
+  prerequisites: string[];
+  matchedDependencies: string[];
+  sourceFindings: string[];
+  checks: ApplicabilityCheck[];
+  nextStep: string;
+}
+
+export interface FalsePositiveControl {
+  rule: string;
+  verdict: 'kept' | 'demoted' | 'blocked';
+  detail: string;
+}
+
+export interface DockerVerification {
+  status: 'skipped' | 'planned' | 'running' | 'completed' | 'failed';
+  strategy: string;
+  dockerfile: string | null;
+  composeFile: string | null;
+  imageTag: string | null;
+  containerName: string | null;
+  commands: string[];
+  logs: string[];
+  requiresLogin: boolean;
+  loginHint: string | null;
 }
 
 export interface EndpointRecord {
@@ -165,6 +222,7 @@ export interface AuditJob {
   createdAt: string;
   updatedAt: string;
   reportId: string | null;
+  verificationStatus: 'skipped' | 'planned' | 'running' | 'completed' | 'failed';
   stages: AuditStage[];
   error: string | null;
 }
@@ -185,6 +243,11 @@ export interface AuditReport {
   repoName: string;
   generatedAt: string;
   summary: AuditSummary;
+  environment: EnvironmentFingerprint;
+  dependencies: DependencyEvidence[];
+  exploitChains: ExploitChainCandidate[];
+  falsePositiveControls: FalsePositiveControl[];
+  dockerVerification: DockerVerification;
   endpointMap: EndpointRecord[];
   interfaceTests: InterfaceTestPlan[];
   findings: VulnerabilityFinding[];

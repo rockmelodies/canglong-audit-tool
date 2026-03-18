@@ -43,6 +43,7 @@
 - [Model Mesh](#model-mesh)
 - [Repository Layout](#repository-layout)
 - [Quick Start](#quick-start)
+- [Current Snapshot](#current-snapshot)
 - [API Surface](#api-surface)
 - [Development Workflow](#development-workflow)
 - [Roadmap](#roadmap)
@@ -197,16 +198,48 @@ docker compose up --build
 
 The web app defaults to `http://127.0.0.1:9000` for API access. Override with `VITE_API_BASE_URL` when needed.
 
+### Demo Access
+
+- demo username: `admin`
+- demo password: `Canglong123!`
+
+### Workspace Flow
+
+1. Sign in from `/login`.
+2. Register either a remote Git repository or a local source directory from the workspace page.
+3. Sync the repository when needed, then launch an audit job.
+4. Open the generated report to inspect environment fingerprints, dependency evidence, discovered endpoints, candidate exploit chains, false-positive controls, docker verification hints, and remediation guidance.
+
+## Current Snapshot
+
+The current repository already ships a usable end-to-end demo flow:
+
+- session-based demo authentication for the web UI and API
+- repository intake for both remote Git URLs and local directories
+- repository sync for Git sources and path validation for local sources
+- background audit jobs with progress, stage tracking, and report generation
+- heuristic audit reporting with environment fingerprints, dependency evidence, endpoint discovery, finding promotion, exploit-chain candidates, false-positive controls, and docker verification planning
+- bilingual web views for login, overview, workspace, missions, and report review
+
 ## API Surface
 
 | Method | Route | Purpose |
 | --- | --- | --- |
 | `GET` | `/healthz` | service health check |
+| `POST` | `/api/auth/login` | authenticate and issue a bearer token |
+| `GET` | `/api/auth/me` | validate the current session |
 | `GET` | `/api/dashboard` | overview metrics, evidence posture, and UI summary data |
 | `GET` | `/api/missions` | active mission list |
 | `POST` | `/api/missions` | create a new audit mission |
 | `GET` | `/api/llm/stack` | model mesh, provider strategy, and agent templates |
 | `POST` | `/api/llm/research-agents` | queue a model-assisted research agent |
+| `GET` | `/api/repos` | list registered repositories |
+| `POST` | `/api/repos` | register a Git or local repository |
+| `POST` | `/api/repos/{repo_id}/sync` | clone or pull a Git repository, or validate a local path |
+| `GET` | `/api/audits` | list audit jobs |
+| `POST` | `/api/audits` | queue a new audit job |
+| `GET` | `/api/audits/{job_id}` | fetch audit job status and stage progress |
+| `GET` | `/api/audits/{job_id}/report` | fetch the completed audit report |
 
 ## Development Workflow
 
@@ -233,12 +266,12 @@ python -m compileall app
 <details>
 <summary><strong>Current Focus Areas</strong></summary>
 
-- repository ingestion and language fingerprinting
-- persistent mission storage and job queueing
-- first-class adapters for Java, Go, Python, PHP, JavaScript, and TypeScript
-- docker template registry and runtime probe agents
+- persistent mission and repository storage
+- deeper language-aware auditing beyond the current heuristic engine
+- executable runtime verification instead of planning-only docker hints
 - decompiler adapters and artifact ingestion workflow
 - real provider SDK integration for model routing and secure private deployments
+- evidence export and collaboration surfaces
 
 </details>
 
@@ -249,11 +282,13 @@ python -m compileall app
 - [x] FastAPI orchestration layer
 - [x] Model mesh and research-agent surface
 - [x] Docker-ready local development skeleton
-- [ ] Real repository ingestion and graph persistence
-- [ ] Language-aware audit engines
+- [x] Demo auth, repository intake, and audit workspace
+- [x] Heuristic repository ingestion and report generation
+- [ ] Persistent graph storage and historical audit retention
+- [ ] Deeper language-aware audit engines
 - [ ] Runtime breakpoint executor
 - [ ] Reverse-engineering pipeline adapters
-- [ ] Mission persistence, auth, and collaboration
+- [ ] Multi-user auth, persistence, and collaboration
 - [ ] Provider SDK adapters and prompt-pack registry
 - [ ] Evidence export and reporting pipeline
 

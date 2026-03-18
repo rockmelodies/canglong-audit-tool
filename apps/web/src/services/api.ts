@@ -306,7 +306,14 @@ export function fetchRepos(locale: Locale) {
 
 export function createRepo(
   locale: Locale,
-  payload: { name?: string; url: string; branch: string; defaultBaseUrl?: string },
+  payload: {
+    sourceType?: 'git' | 'local';
+    name?: string;
+    url?: string;
+    branch?: string;
+    defaultBaseUrl?: string;
+    localPath?: string;
+  },
 ) {
   return request<RepoConfig>('/api/repos', locale, {
     method: 'POST',
@@ -322,6 +329,10 @@ export function syncRepo(locale: Locale, repoId: string) {
 
 export function fetchAudits(locale: Locale) {
   return request<AuditJob[]>('/api/audits', locale);
+}
+
+export function fetchAudit(locale: Locale, jobId: string) {
+  return request<AuditJob>(`/api/audits/${jobId}`, locale);
 }
 
 export function startAudit(locale: Locale, repoId: string) {
