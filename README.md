@@ -8,13 +8,13 @@
 
 <div align="center">
 
-**Evidence-first code audit, vulnerability research, dockerized verification, and model-assisted security operations**
+**Evidence-first code audit, Java exploit-chain recognition, Docker-oriented verification, and model-assisted security operations**
 
 <p>
   <img src="https://img.shields.io/badge/Stage-Alpha-ff7a1a?style=for-the-badge" alt="Stage Alpha" />
   <img src="https://img.shields.io/badge/Frontend-Vue_3_%2B_TypeScript-00d4aa?style=for-the-badge" alt="Vue 3 and TypeScript" />
   <img src="https://img.shields.io/badge/Backend-FastAPI-0f172a?style=for-the-badge" alt="FastAPI" />
-  <img src="https://img.shields.io/badge/Runtime-Docker_Ready-1f6feb?style=for-the-badge" alt="Docker Ready" />
+  <img src="https://img.shields.io/badge/Analysis-Static_%2B_Chain_Aware-1f6feb?style=for-the-badge" alt="Static and Chain Aware" />
   <img src="https://img.shields.io/badge/AI-Multi--Model_Mesh-7c3aed?style=for-the-badge" alt="Multi-model Mesh" />
 </p>
 
@@ -29,122 +29,206 @@
 
 </div>
 
-> Canglong is designed to act less like a noisy scanner and more like a senior security reviewer:
-> trace evidence, reduce false positives, generate proof paths, orchestrate docker ranges, and use the right model or agent for the right security task.
+> Canglong is designed to feel less like a noisy rule dump and more like a senior reviewer:
+> correlate code evidence, reduce false positives, identify exploit paths, stage replay plans, and route model-assisted work to the right lane.
 
 ![img_5.png](img_5.png)
-![img_3.png](img_3.png)![img.png](img.png)
+![img_3.png](img_3.png)
+![img.png](img.png)
 ![img_4.png](img_4.png)
 
 ## Table Of Contents
 
 - [Why Canglong](#why-canglong)
-- [Core Capabilities](#core-capabilities)
-- [System Architecture](#system-architecture)
+- [What Works Today](#what-works-today)
+- [Java Audit Strategy](#java-audit-strategy)
 - [Model Mesh](#model-mesh)
-- [Repository Layout](#repository-layout)
 - [Quick Start](#quick-start)
-- [Current Snapshot](#current-snapshot)
+- [Operator Flow](#operator-flow)
 - [API Surface](#api-surface)
-- [Development Workflow](#development-workflow)
+- [Repository Layout](#repository-layout)
 - [Roadmap](#roadmap)
 - [Notes](#notes)
 
 ## Why Canglong
 
-Most security tooling is strong at one of these and weak at the rest:
+Most security tooling is strong at one layer and weak at the handoff:
 
-- static scanning without proof
-- dynamic verification without graph context
-- reverse engineering without a unified evidence model
-- AI assistance without routing discipline or privacy boundaries
+- static scanning without runtime context
+- exploit research without clear code evidence
+- reverse engineering without a unified operator workflow
+- AI integration without routing discipline, privacy boundaries, or repeatability
 
-Canglong is structured to combine them into one operator-facing platform:
+Canglong is being shaped as one operator-facing workbench that combines:
 
-- human-like audit flow instead of raw rule dumps
-- evidence-backed vulnerability promotion instead of severity inflation
-- replayable docker environments for verification
-- reverse-engineering lanes for APK, JAR, ELF, PE, and related binaries
-- multi-model routing for exploit reasoning, long-context review, multimodal artifact digestion, and private deployments
+- local and Git-based code intake
+- evidence-ranked static audit
+- Java-aware exploit-chain correlation
+- Docker-oriented verification planning and runtime reachability checks
+- bilingual UI for report-driven review
+- multi-model routing for research agents and task-specific reasoning
 
-## Core Capabilities
+## What Works Today
 
-| Capability | What It Does | Why It Matters |
-| --- | --- | --- |
-| Human-like audit workflow | Converts code structure into evidence-ranked review paths | Reduces analyst fatigue and lowers false positives |
-| Vulnerability research missions | Tracks one objective from suspicion to proof | Keeps exploitability and evidence connected |
-| Dynamic breakpoint orchestration | Generates replay and debugging plans from static traces | Makes suspicious paths verifiable |
-| Docker range builder | Creates isolated compose-based targets and fixtures | Speeds up reproduction and environment bootstrapping |
-| Decompiler lane | Ingests reverse-engineered artifacts into the same graph | Unifies source and binary analysis |
-| Multi-model mesh | Routes tasks across commercial and self-hosted LLMs | Matches cost, context, reasoning depth, and privacy needs |
-| Research agents | Runs focused AI workers for exploit expansion and triage | Turns models into operator tools, not decoration |
+### Operator Experience
 
-## System Architecture
+- Login-protected web command center built with Vue 3, TypeScript, and Vite
+- English and Simplified Chinese switching
+- Repository workspace for Git URLs and local source directories
+- Model settings page for multi-provider configuration and default lane selection
+- Audit progress tracking with stages, progress bars, and final report view
 
-```mermaid
-flowchart LR
-    A[Source Repo / Binary Input] --> B[Ingestion Layer]
-    B --> C[Knowledge Graph]
-    C --> D[Static Audit Engine]
-    C --> E[Dynamic Verification Engine]
-    C --> F[Decompiler Lane]
-    D --> G[Mission Control UI]
-    E --> G
-    F --> G
-    H[Model Mesh] --> I[Research Agents]
-    I --> D
-    I --> E
-    I --> F
-    G --> J[Evidence, Findings, Replay Plans]
-```
+### Audit Engine
 
-### Architecture Layers
+- Static repository fingerprinting for languages, frameworks, packaging, and manifests
+- Endpoint discovery for Python, Java, JavaScript/TypeScript, and Go entry surfaces
+- Dependency evidence extraction from `pom.xml`, Gradle, `requirements.txt`, `package.json`, and `go.mod`
+- Finding promotion for command execution, unsafe deserialization, weak crypto, auth bypass, and language-specific risk markers
+- False-positive controls to explain when findings are demoted or blocked
+- Docker verification planning plus runtime reachability and login-required hinting
 
-| Layer | Current Direction |
-| --- | --- |
-| Ingestion | Repositories, archives, mounted workspaces, and binary inputs |
-| Knowledge graph | File graph, symbol graph, taint graph, request-to-sink path graph |
-| Static audit | Framework-aware sources, sinks, and semantic trace compression |
-| Dynamic verification | Breakpoint recipes, replay capture, runtime contradiction handling |
-| Reverse engineering | Decompiled symbols, endpoint recovery, string and secret mining |
-| Model mesh | Provider routing based on task type, privacy, context, and cost |
-| Mission control | Operator-facing UI for evidence, next actions, and proof paths |
+### Java-Focused Improvements Already Integrated
 
-<details>
-<summary><strong>Design Principle: Lower False Positives</strong></summary>
+- `groupId:artifactId` dependency extraction for Maven and Gradle projects
+- framework fingerprinting for Spring Boot, JAX-RS, Shiro, Dubbo, MyBatis, Struts, and Hessian
+- automatic Java exploit-chain candidates with applicability checks
+- runtime-aware demotion for modern JDK constraints
+- dependency-backed reduction of noisy chain promotion
 
-Canglong should not promote every reachable sink as a severe finding. The intended strategy is:
+## Java Audit Strategy
 
-- require multi-signal agreement before severity promotion
-- keep raw evidence attached to every claim
-- rank paths by exploitability, preconditions, and runtime reachability
-- demote paths invalidated by guards, sanitizers, framework constraints, or container replay
+The current Java strategy is intentionally chain-aware instead of pattern-only.
 
-</details>
+### Static Correlation Lanes
+
+- JNDI lookup path recognition
+- Fastjson AutoType risk detection
+- Hessian and Dubbo deserialization path detection
+- XStream XML deserialization detection
+- generic gadget-style deserialization correlation
+- Spring expression injection hints
+- auth framework surface correlation for Spring Security, Shiro, and related stacks
+
+### Applicability Logic
+
+Each Java exploit-chain candidate is scored with explicit checks:
+
+- ingress reachability
+- dependency evidence
+- code sink evidence
+- runtime constraints
+
+This is the main false-positive control borrowed from the `java-chains` style of thinking:
+do not treat every suspicious sink as equally exploitable without matching dependency and environment evidence.
+
+### Current Java Chain Outputs
+
+Canglong can currently emit candidates such as:
+
+- JNDI remote naming chain
+- Fastjson AutoType gadget chain
+- Hessian or Dubbo deserialization chain
+- XStream XML deserialization chain
+- Java gadget deserialization chain
+- Spring expression injection chain
 
 ## Model Mesh
 
-The current direction is not to overfit the product to a long vendor list. The default path is:
+The product direction is not “show a long vendor list”. The goal is practical routing:
 
-- start with a frontier general-purpose model for most agent work
-- strengthen it with prompt packs, MCP context, toolchains, and reusable skills
-- switch models only when long-context review, multimodal artifact digestion, or private deployment clearly wins
+- use a strong general-purpose reasoning model as the default audit lane
+- route long-context review to long-context models
+- route reverse-engineering and diagram-heavy tasks to multimodal models
+- support self-hosted or privacy-bound deployments when code cannot leave the boundary
 
-| Provider Lane | Best Fit | Example Security Tasks |
+### Current Provider Surface
+
+- OpenAI
+- Anthropic
+- Gemini
+- Qwen
+- DeepSeek
+- self-hosted / OpenAI-compatible gateways
+
+### Planned Agent Roles
+
+- Exploit Chain Researcher
+- False-Positive Reducer
+- Docker Range Planner
+- Decompiler Recon Agent
+
+## Quick Start
+
+### 1. Run the web app
+
+```bash
+cd apps/web
+npm install
+npm run dev
+```
+
+### 2. Run the API
+
+```bash
+cd apps/api
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 9000
+```
+
+### 3. Run with Docker Compose
+
+```bash
+docker compose up --build
+```
+
+### Demo access
+
+- username: `admin`
+- password: `Canglong123!`
+
+## Operator Flow
+
+1. Sign in at `/login`.
+2. Open `/settings` if you want to configure provider lanes or a default model.
+3. Go to `/workspace` and register either:
+   - a Git repository URL
+   - a local source directory
+4. Sync the repository if it is Git-based.
+5. Start an audit from the workspace card.
+6. Open the report to inspect:
+   - environment fingerprints
+   - dependency evidence
+   - discovered endpoints
+   - exploit-chain candidates
+   - false-positive controls
+   - Docker verification status
+   - login-required hints for runtime replay
+
+## API Surface
+
+| Method | Route | Purpose |
 | --- | --- | --- |
-| GPT-5.4 class models | default audit orchestration, tool use, structured reasoning | exploit-chain expansion, workflow execution, report synthesis |
-| Opus-class long-context models | large review passes and contradiction handling | guard validation, policy-heavy review, repository second pass |
-| Gemini-class multimodal models | screenshots, decompile artifacts, diagrams, binary-heavy evidence | artifact digestion, reverse-engineering assistance, interface recovery |
-| Self-hosted general models | privacy-bound or air-gapped execution | internal deployments, sensitive code review, controlled environments |
-
-### Planned Research Agents
-
-| Agent | Role | Expected Output |
-| --- | --- | --- |
-| Exploit Chain Researcher | expands suspicious paths into attack conditions and pivots | exploit hypotheses, replay prompts, proof checklists |
-| False-Positive Reducer | cross-checks guards and contradictions before promotion | demotion suggestions, evidence gaps, contradiction logs |
-| Docker Range Planner | turns hypotheses into runnable environments | compose plans, fixtures, probe recipes |
-| Decompiler Recon Agent | turns reverse-engineered artifacts into attack-surface maps | recovered endpoints, symbol hints, library notes |
+| `GET` | `/healthz` | service health check |
+| `POST` | `/api/auth/login` | authenticate and issue a bearer token |
+| `GET` | `/api/auth/me` | validate the current session |
+| `GET` | `/api/dashboard` | overview metrics and UI summary |
+| `GET` | `/api/missions` | mission list |
+| `POST` | `/api/missions` | create a mission |
+| `GET` | `/api/llm/stack` | model-mesh strategy and agent templates |
+| `POST` | `/api/llm/research-agents` | queue a model-assisted research agent |
+| `GET` | `/api/settings/models` | fetch configured model lanes |
+| `POST` | `/api/settings/models` | add a model lane |
+| `PUT` | `/api/settings/models/{model_id}` | update a model lane |
+| `POST` | `/api/settings/models/{model_id}/default` | mark the default lane |
+| `GET` | `/api/repos` | list registered repositories |
+| `POST` | `/api/repos` | register a Git or local repository |
+| `POST` | `/api/repos/{repo_id}/sync` | clone/pull a Git repository or validate a local path |
+| `GET` | `/api/audits` | list audit jobs |
+| `POST` | `/api/audits` | start a new audit job |
+| `GET` | `/api/audits/{job_id}` | fetch audit progress and stages |
+| `GET` | `/api/audits/{job_id}/report` | fetch the completed audit report |
 
 ## Repository Layout
 
@@ -173,154 +257,44 @@ The current direction is not to overfit the product to a long vendor list. The d
 `-- package.json
 ```
 
-## Quick Start
-
-### 1. Run The Web App
-
-```bash
-cd apps/web
-npm install
-npm run dev
-```
-
-### 2. Run The API
-
-```bash
-cd apps/api
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 9000
-```
-
-### 3. Run With Docker Compose
-
-```bash
-docker compose up --build
-```
-
-The web app defaults to `http://127.0.0.1:9000` for API access. Override with `VITE_API_BASE_URL` when needed.
-
-### Demo Access
-
-- demo username: `admin`
-- demo password: `Canglong123!`
-
-### Workspace Flow
-
-1. Sign in from `/login`.
-2. Open `/settings` and configure one default model first. Custom OpenAI-compatible endpoints are supported.
-3. Go to `/workspace`, register either a remote Git repository or a local source directory, then sync it when needed.
-4. Click the green `Start Audit` button on the repository card.
-5. Open the generated report to inspect environment fingerprints, dependency evidence, discovered endpoints, candidate exploit chains, false-positive controls, docker verification hints, and remediation guidance.
-
-## Current Snapshot
-
-The current repository already ships a usable end-to-end demo flow:
-
-- session-based demo authentication for the web UI and API
-- repository intake for both remote Git URLs and local directories
-- repository sync for Git sources and path validation for local sources
-- background audit jobs with progress, stage tracking, and report generation
-- heuristic audit reporting with environment fingerprints, dependency evidence, endpoint discovery, finding promotion, exploit-chain candidates, false-positive controls, and docker verification planning
-- bilingual web views for login, overview, workspace, missions, and report review
-
-## API Surface
-
-| Method | Route | Purpose |
-| --- | --- | --- |
-| `GET` | `/healthz` | service health check |
-| `POST` | `/api/auth/login` | authenticate and issue a bearer token |
-| `GET` | `/api/auth/me` | validate the current session |
-| `GET` | `/api/dashboard` | overview metrics, evidence posture, and UI summary data |
-| `GET` | `/api/missions` | active mission list |
-| `POST` | `/api/missions` | create a new audit mission |
-| `GET` | `/api/llm/stack` | model mesh, provider strategy, and agent templates |
-| `POST` | `/api/llm/research-agents` | queue a model-assisted research agent |
-| `GET` | `/api/settings/models` | fetch model configuration, readiness, and guidance |
-| `POST` | `/api/settings/models` | add a custom model endpoint |
-| `PUT` | `/api/settings/models/{model_id}` | update a model endpoint |
-| `POST` | `/api/settings/models/{model_id}/default` | mark a model as the default audit lane |
-| `GET` | `/api/repos` | list registered repositories |
-| `POST` | `/api/repos` | register a Git or local repository |
-| `POST` | `/api/repos/{repo_id}/sync` | clone or pull a Git repository, or validate a local path |
-| `GET` | `/api/audits` | list audit jobs |
-| `POST` | `/api/audits` | queue a new audit job |
-| `GET` | `/api/audits/{job_id}` | fetch audit job status and stage progress |
-| `GET` | `/api/audits/{job_id}/report` | fetch the completed audit report |
-
-## Development Workflow
-
-### Web
-
-```bash
-cd apps/web
-npm run build
-```
-
-### API
-
-```bash
-cd apps/api
-python -m compileall app
-```
-
-### Project Docs
-
-- Architecture blueprint: [`docs/architecture.md`](./docs/architecture.md)
-- API entrypoint: [`apps/api/app/main.py`](./apps/api/app/main.py)
-- UI overview page: [`apps/web/src/views/OverviewView.vue`](./apps/web/src/views/OverviewView.vue)
-
-<details>
-<summary><strong>Current Focus Areas</strong></summary>
-
-- persistent mission and repository storage
-- deeper language-aware auditing beyond the current heuristic engine
-- executable runtime verification instead of planning-only docker hints
-- decompiler adapters and artifact ingestion workflow
-- real provider SDK integration for model routing and secure private deployments
-- evidence export and collaboration surfaces
-
-</details>
-
 ## Roadmap
 
-- [x] Monorepo skeleton for web and API
-- [x] Operator-facing Vue command center
-- [x] FastAPI orchestration layer
-- [x] Model mesh and research-agent surface
-- [x] Docker-ready local development skeleton
-- [x] Demo auth, repository intake, and audit workspace
-- [x] Heuristic repository ingestion and report generation
-- [ ] Persistent graph storage and historical audit retention
-- [ ] Deeper language-aware audit engines
-- [ ] Runtime breakpoint executor
-- [ ] Reverse-engineering pipeline adapters
-- [ ] Multi-user auth, persistence, and collaboration
-- [ ] Provider SDK adapters and prompt-pack registry
-- [ ] Evidence export and reporting pipeline
+- [x] Web and API monorepo skeleton
+- [x] Login, session flow, and protected routes
+- [x] Repository intake for Git and local directories
+- [x] Background audit jobs and report generation
+- [x] Model settings and multi-provider mesh surface
+- [x] Java dependency fingerprinting and exploit-chain recognition
+- [x] False-positive control reporting
+- [x] Bilingual README and bilingual UI switching
+- [ ] persistent repository and audit history storage
+- [ ] deeper AST and dataflow engines across more languages
+- [ ] breakpoint-oriented runtime executor
+- [ ] full Docker deployment and replay orchestration per target stack
+- [ ] reverse-engineering adapters for binary intake
+- [ ] multi-user collaboration and evidence export
 
 ## Notes
 
 ### Positioning
 
-Canglong is being shaped as a security operations workbench, not a single-purpose scanner. The long-term goal is to combine:
+Canglong is being built as a security operations workbench, not a single-purpose scanner.
+The long-term direction is to merge:
 
 - code audit
-- vulnerability research
-- dynamic verification
+- exploit research
+- runtime verification
 - reverse engineering
-- model-assisted operator workflows
+- model-assisted analyst workflows
 
-### Professional Readme Conventions
+### GitHub Presentation
 
 This README intentionally uses GitHub-native presentation elements:
 
 - badges
 - tables
-- collapsible sections
-- mermaid architecture diagram
+- collapsible-friendly sections
 - task-list roadmap
-- structured quick-start commands
+- bilingual switching
 
-These make the repository homepage read like a real product surface rather than a placeholder.
+The goal is a repository front page that reads like a serious product surface instead of a placeholder.
