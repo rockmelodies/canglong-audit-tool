@@ -7,6 +7,73 @@ Tone = Literal["accent", "warning", "neutral"]
 AuditStatus = Literal["queued", "running", "completed", "failed"]
 ApplicabilityStatus = Literal["applicable", "blocked", "uncertain"]
 
+# 审计类型定义 / Audit Type Definitions
+AuditType = Literal["sast", "dast", "sca", "secret", "comprehensive"]
+
+# 审计类型显示信息 / Audit Type Display Info
+AUDIT_TYPE_INFO = {
+    "sast": {
+        "code": "sast",
+        "name": "SAST",
+        "fullName": "静态应用安全测试",
+        "fullNameEn": "Static Application Security Testing",
+        "description": "源代码静态分析，检测安全漏洞",
+        "descriptionEn": "Static code analysis to detect security vulnerabilities",
+        "icon": "🔍",
+        "color": "#3B82F6",
+        "bgColor": "#EFF6FF",
+        "borderColor": "#BFDBFE"
+    },
+    "dast": {
+        "code": "dast",
+        "name": "DAST",
+        "fullName": "动态应用安全测试",
+        "fullNameEn": "Dynamic Application Security Testing",
+        "description": "运行时安全测试，模拟攻击",
+        "descriptionEn": "Runtime security testing, simulating attacks",
+        "icon": "🎯",
+        "color": "#F97316",
+        "bgColor": "#FFF7ED",
+        "borderColor": "#FED7AA"
+    },
+    "sca": {
+        "code": "sca",
+        "name": "SCA",
+        "fullName": "软件成分分析",
+        "fullNameEn": "Software Composition Analysis",
+        "description": "依赖漏洞扫描，许可证合规",
+        "descriptionEn": "Dependency vulnerability scanning, license compliance",
+        "icon": "📦",
+        "color": "#8B5CF6",
+        "bgColor": "#F5F3FF",
+        "borderColor": "#DDD6FE"
+    },
+    "secret": {
+        "code": "secret",
+        "name": "SECRET",
+        "fullName": "敏感信息检测",
+        "fullNameEn": "Secret Detection",
+        "description": "检测代码中的密钥、凭证",
+        "descriptionEn": "Detect keys and credentials in code",
+        "icon": "🔑",
+        "color": "#EF4444",
+        "bgColor": "#FEF2F2",
+        "borderColor": "#FECACA"
+    },
+    "comprehensive": {
+        "code": "comprehensive",
+        "name": "综合",
+        "fullName": "综合审计",
+        "fullNameEn": "Comprehensive Audit",
+        "description": "全量安全审计，包含以上所有",
+        "descriptionEn": "Full security audit including all above",
+        "icon": "🛡️",
+        "color": "#10B981",
+        "bgColor": "#ECFDF5",
+        "borderColor": "#A7F3D0"
+    }
+}
+
 
 class MetricCardItem(BaseModel):
     id: str
@@ -471,3 +538,234 @@ class PermissionCheck(BaseModel):
     action: str
     allowed: bool
     reason: str | None = None
+
+
+# ==================== Project Management Models ====================
+# 项目管理模型 / Project Management Models
+
+class ProjectRepository(BaseModel):
+    """项目仓库信息 / Project repository information
+    
+    Attributes:
+        type: 仓库类型 (git/local) / Repository type (git/local)
+        url: Git仓库URL / Git repository URL
+        localPath: 本地路径 / Local path
+        branch: 分支名称 / Branch name
+        lastSyncAt: 最后同步时间 / Last sync time
+        syncStatus: 同步状态 / Sync status
+    """
+    type: Literal["git", "local"]
+    url: str | None = None
+    localPath: str | None = None
+    branch: str = "main"
+    lastSyncAt: str | None = None
+    syncStatus: Literal["idle", "syncing", "success", "failed"] = "idle"
+
+
+class ProjectStatistics(BaseModel):
+    """项目统计信息 / Project statistics
+    
+    Attributes:
+        totalAudits: 总审计次数 / Total audit count
+        lastAuditAt: 最后审计时间 / Last audit time
+        totalFindings: 总发现数 / Total findings count
+        criticalFindings: 严重漏洞数 / Critical findings count
+        highFindings: 高危漏洞数 / High findings count
+    """
+    totalAudits: int = 0
+    lastAuditAt: str | None = None
+    totalFindings: int = 0
+    criticalFindings: int = 0
+    highFindings: int = 0
+
+
+class ProjectSettings(BaseModel):
+    """项目设置 / Project settings
+    
+    Attributes:
+        defaultAuditType: 默认审计类型 / Default audit type
+        autoSync: 自动同步 / Auto sync
+        notifications: 通知开关 / Notifications enabled
+    """
+    defaultAuditType: AuditType = "comprehensive"
+    autoSync: bool = False
+    notifications: bool = True
+
+
+class Project(BaseModel):
+    """项目模型 / Project model
+    
+    Attributes:
+        id: 项目ID / Project ID
+        name: 项目名称 / Project name
+        description: 项目描述 / Project description
+        repository: 仓库信息 / Repository information
+        statistics: 统计信息 / Statistics
+        settings: 项目设置 / Project settings
+        createdAt: 创建时间 / Creation time
+        updatedAt: 更新时间 / Update time
+    """
+    id: str
+    name: str
+    description: str | None = None
+    repository: ProjectRepository
+    statistics: ProjectStatistics = Field(default_factory=ProjectStatistics)
+    settings: ProjectSettings = Field(default_factory=ProjectSettings)
+    createdAt: str
+    updatedAt: str
+
+
+class ProjectCreate(BaseModel):
+    """创建项目请求 / Create project request
+    
+    Attributes:
+        name: 项目名称 / Project name
+        description: 项目描述 / Project description
+        repository: 仓库信息 / Repository information
+        settings: 项目设置 / Project settings
+    """
+    name: str = Field(..., min_length=1, max_length=100)
+    description: str | None = Field(None, max_length=500)
+    repository: ProjectRepository
+    settings: ProjectSettings = Field(default_factory=ProjectSettings)
+
+
+class ProjectUpdate(BaseModel):
+    """更新项目请求 / Update project request
+    
+    Attributes:
+        name: 项目名称 / Project name
+        description: 项目描述 / Project description
+        settings: 项目设置 / Project settings
+    """
+    name: str | None = Field(None, min_length=1, max_length=100)
+    description: str | None = Field(None, max_length=500)
+    settings: ProjectSettings | None = None
+
+
+class ProjectListResponse(BaseModel):
+    """项目列表响应 / Project list response
+    
+    Attributes:
+        projects: 项目列表 / List of projects
+        total: 总数 / Total count
+    """
+    projects: list[Project]
+    total: int
+
+
+# ==================== Enhanced Audit Task Models ====================
+# 增强的审计任务模型 / Enhanced Audit Task Models
+
+class AuditTaskConfig(BaseModel):
+    """审计任务配置 / Audit task configuration
+    
+    Attributes:
+        scope: 扫描范围 / Scan scope
+        rules: 规则集 / Rule set
+        excludePatterns: 排除模式 / Exclude patterns
+        runtimeUrl: 运行时地址（用于DAST）/ Runtime URL (for DAST)
+    """
+    scope: list[str] = Field(default_factory=list)
+    rules: list[str] = Field(default_factory=list)
+    excludePatterns: list[str] = Field(default_factory=list)
+    runtimeUrl: str | None = None
+
+
+class AuditTaskResult(BaseModel):
+    """审计任务结果 / Audit task result
+    
+    Attributes:
+        filesScanned: 扫描文件数 / Files scanned
+        findingsTotal: 总发现数 / Total findings
+        findingsBySeverity: 按严重程度分类的发现数 / Findings by severity
+        duration: 执行时长（秒）/ Duration in seconds
+    """
+    filesScanned: int = 0
+    findingsTotal: int = 0
+    findingsBySeverity: dict[str, int] = Field(default_factory=dict)
+    duration: int = 0
+
+
+class AuditTask(BaseModel):
+    """审计任务模型 / Audit task model
+    
+    Attributes:
+        id: 任务ID / Task ID
+        projectId: 项目ID / Project ID
+        projectName: 项目名称 / Project name
+        type: 审计类型 / Audit type
+        status: 任务状态 / Task status
+        progress: 进度百分比 / Progress percentage
+        currentStep: 当前步骤 / Current step
+        config: 任务配置 / Task configuration
+        result: 任务结果 / Task result
+        error: 错误信息 / Error message
+        createdAt: 创建时间 / Creation time
+        startedAt: 开始时间 / Start time
+        completedAt: 完成时间 / Completion time
+    """
+    id: str
+    projectId: str
+    projectName: str
+    type: AuditType
+    status: AuditStatus
+    progress: int = 0
+    currentStep: str | None = None
+    config: AuditTaskConfig = Field(default_factory=AuditTaskConfig)
+    result: AuditTaskResult | None = None
+    error: str | None = None
+    createdAt: str
+    startedAt: str | None = None
+    completedAt: str | None = None
+
+
+class AuditTaskCreate(BaseModel):
+    """创建审计任务请求 / Create audit task request
+    
+    Attributes:
+        projectId: 项目ID / Project ID
+        type: 审计类型 / Audit type
+        config: 任务配置 / Task configuration
+    """
+    projectId: str
+    type: AuditType = "comprehensive"
+    config: AuditTaskConfig = Field(default_factory=AuditTaskConfig)
+
+
+class AuditTaskListResponse(BaseModel):
+    """审计任务列表响应 / Audit task list response
+    
+    Attributes:
+        tasks: 任务列表 / List of tasks
+        total: 总数 / Total count
+    """
+    tasks: list[AuditTask]
+    total: int
+
+
+class AuditTypeResponse(BaseModel):
+    """审计类型响应 / Audit type response
+    
+    Attributes:
+        code: 类型代码 / Type code
+        name: 类型名称 / Type name
+        fullName: 完整名称 / Full name
+        fullNameEn: 英文完整名称 / Full name in English
+        description: 描述 / Description
+        descriptionEn: 英文描述 / Description in English
+        icon: 图标 / Icon
+        color: 颜色 / Color
+        bgColor: 背景色 / Background color
+        borderColor: 边框色 / Border color
+    """
+    code: str
+    name: str
+    fullName: str
+    fullNameEn: str
+    description: str
+    descriptionEn: str
+    icon: str
+    color: str
+    bgColor: str
+    borderColor: str

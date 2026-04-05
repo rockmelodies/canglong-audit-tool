@@ -5,10 +5,19 @@
 
     <!-- Audit Progress Component - Show when there are running audits -->
     <AuditProgress
-      v-if="runningAudits.length > 0"
-      :audits="runningAudits"
-      @pause="handlePauseAudit"
-      @resume="handleResumeAudit"
+      v-if="runningAudits.length > 0 && activeAuditProgress"
+      :isVisible="showAuditProgress"
+      :title="activeAuditProgress.repoName"
+      :status="activeAuditProgress.status === 'queued' ? 'running' : activeAuditProgress.status"
+      :totalFiles="100"
+      :processedFiles="activeAuditProgress.progress"
+      :findingsCount="activeAuditProgress.findings"
+      :elapsedTime="0"
+      :currentTask="activeAuditProgress.currentStep"
+      :stages="[]"
+      :recentFindings="[]"
+      @pause="handlePauseAudit(activeAuditProgress.id)"
+      @resume="handleResumeAudit(activeAuditProgress.id)"
       @close="handleCloseAuditProgress"
     />
 
@@ -233,10 +242,16 @@ const feedbackMessage = ref('');
 const pollHandle = ref<number | null>(null);
 const modelReady = ref(false);
 const modelNextAction = ref('');
+const showAuditProgress = ref(false);
 
 // Computed property for running audits
 const runningAudits = computed(() => {
   return audits.value.filter(audit => audit.status === 'running' || audit.status === 'queued');
+});
+
+// Computed property for active audit progress
+const activeAuditProgress = computed(() => {
+  return runningAudits.value[0] || null;
 });
 
 const form = reactive({
@@ -402,7 +417,7 @@ function handleResumeAudit(auditId: string) {
 
 function handleCloseAuditProgress() {
   console.log('Closing audit progress panel');
-  // The panel will auto-hide when no running audits exist
+  showAuditProgress.value = false;
 }
 
 onMounted(async () => {
@@ -415,6 +430,13 @@ onMounted(async () => {
 watch(locale, () => {
   void loadWorkspace();
 });
+
+// Auto-show progress panel when there are running audits
+watch(runningAudits, (newValue) => {
+  if (newValue.length > 0) {
+    showAuditProgress.value = true;
+  }
+}, { immediate: true });
 
 onBeforeUnmount(() => {
   if (pollHandle.value) {

@@ -35,6 +35,7 @@ from app.routers.auth import router as auth_router
 from app.routers.dashboard import router as dashboard_router
 from app.routers.llm import router as llm_router
 from app.routers.missions import router as missions_router
+from app.routers.projects import router as projects_router
 from app.routers.repos import router as repos_router
 from app.routers.settings import router as settings_router
 from app.routers.users import router as users_router
@@ -161,6 +162,9 @@ app.include_router(settings_router, tags=["Settings"])
 
 # User management / 用户管理
 app.include_router(users_router, tags=["User Management"])
+
+# Project management / 项目管理
+app.include_router(projects_router, tags=["Projects"])
 
 # Audit history / 审计历史
 app.include_router(history_router, tags=["Audit History"])

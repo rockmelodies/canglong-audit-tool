@@ -35,6 +35,14 @@ import type {
   Mission,
   RepoConfig,
   RepoSyncResponse,
+  Project,
+  ProjectCreate,
+  ProjectUpdate,
+  ProjectListResponse,
+  AuditTask,
+  AuditTaskCreate,
+  AuditTaskListResponse,
+  AuditTypeInfo,
 } from '../types';
 
 /**
@@ -696,6 +704,206 @@ export function acceptInvite(
 // Current user permissions
 export function fetchMyPermissions(locale: Locale) {
   return request<UserPermissions>('/api/users/me/permissions', locale);
+}
+
+// ==================== Project Management API ====================
+// 项目管理 API / Project Management API
+
+/**
+ * Fetch list of projects / 获取项目列表
+ *
+ * @param locale - Current locale for i18n / 当前语言环境
+ * @param params - Query parameters / 查询参数
+ * @returns Promise resolving to project list response / 返回项目列表响应
+ */
+export function fetchProjects(
+  locale: Locale,
+  params?: { skip?: number; limit?: number; search?: string }
+) {
+  const query = new URLSearchParams();
+  if (params?.skip !== undefined) query.set('skip', String(params.skip));
+  if (params?.limit !== undefined) query.set('limit', String(params.limit));
+  if (params?.search) query.set('search', params.search);
+  
+  const queryString = query.toString();
+  return request<ProjectListResponse>(
+    `/api/projects${queryString ? `?${queryString}` : ''}`,
+    locale
+  );
+}
+
+/**
+ * Fetch a single project by ID / 根据ID获取单个项目
+ *
+ * @param locale - Current locale for i18n / 当前语言环境
+ * @param projectId - Project ID / 项目ID
+ * @returns Promise resolving to project / 返回项目
+ */
+export function fetchProject(locale: Locale, projectId: string) {
+  return request<Project>(`/api/projects/${projectId}`, locale);
+}
+
+/**
+ * Create a new project / 创建新项目
+ *
+ * @param locale - Current locale for i18n / 当前语言环境
+ * @param payload - Project creation data / 项目创建数据
+ * @returns Promise resolving to created project / 返回创建的项目
+ */
+export function createProject(locale: Locale, payload: ProjectCreate) {
+  return request<Project>('/api/projects', locale, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+/**
+ * Update an existing project / 更新现有项目
+ *
+ * @param locale - Current locale for i18n / 当前语言环境
+ * @param projectId - Project ID / 项目ID
+ * @param payload - Project update data / 项目更新数据
+ * @returns Promise resolving to updated project / 返回更新后的项目
+ */
+export function updateProject(locale: Locale, projectId: string, payload: ProjectUpdate) {
+  return request<Project>(`/api/projects/${projectId}`, locale, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+}
+
+/**
+ * Delete a project / 删除项目
+ *
+ * @param locale - Current locale for i18n / 当前语言环境
+ * @param projectId - Project ID / 项目ID
+ * @returns Promise resolving to deletion result / 返回删除结果
+ */
+export function deleteProject(locale: Locale, projectId: string) {
+  return request<{ success: boolean; message: string; deletedTasks: number }>(
+    `/api/projects/${projectId}`,
+    locale,
+    { method: 'DELETE' }
+  );
+}
+
+/**
+ * Sync project repository / 同步项目仓库
+ *
+ * @param locale - Current locale for i18n / 当前语言环境
+ * @param projectId - Project ID / 项目ID
+ * @returns Promise resolving to sync result / 返回同步结果
+ */
+export function syncProjectRepository(locale: Locale, projectId: string) {
+  return request<{ success: boolean; message: string; lastSyncAt: string }>(
+    `/api/projects/${projectId}/sync`,
+    locale,
+    { method: 'POST' }
+  );
+}
+
+/**
+ * Fetch project statistics / 获取项目统计信息
+ *
+ * @param locale - Current locale for i18n / 当前语言环境
+ * @param projectId - Project ID / 项目ID
+ * @returns Promise resolving to project statistics / 返回项目统计信息
+ */
+export function fetchProjectStatistics(locale: Locale, projectId: string) {
+  return request<{
+    projectId: string;
+    projectName: string;
+    totalTasks: number;
+    tasksByStatus: Record<string, number>;
+    tasksByType: Record<string, number>;
+    statistics: {
+      totalAudits: number;
+      lastAuditAt: string | null;
+      totalFindings: number;
+      criticalFindings: number;
+      highFindings: number;
+    };
+  }>(`/api/projects/${projectId}/statistics`, locale);
+}
+
+/**
+ * Fetch all available audit types / 获取所有可用的审计类型
+ *
+ * @param locale - Current locale for i18n / 当前语言环境
+ * @returns Promise resolving to list of audit types / 返回审计类型列表
+ */
+export function fetchAuditTypes(locale: Locale) {
+  return request<AuditTypeInfo[]>('/api/projects/types', locale);
+}
+
+// ==================== Audit Task Management API ====================
+// 审计任务管理 API / Audit Task Management API
+
+/**
+ * Fetch audit tasks for a project / 获取项目的审计任务列表
+ *
+ * @param locale - Current locale for i18n / 当前语言环境
+ * @param projectId - Project ID / 项目ID
+ * @param params - Query parameters / 查询参数
+ * @returns Promise resolving to audit task list response / 返回审计任务列表响应
+ */
+export function fetchProjectTasks(
+  locale: Locale,
+  projectId: string,
+  params?: { status?: string; type?: string; skip?: number; limit?: number }
+) {
+  const query = new URLSearchParams();
+  if (params?.status) query.set('status', params.status);
+  if (params?.type) query.set('type', params.type);
+  if (params?.skip !== undefined) query.set('skip', String(params.skip));
+  if (params?.limit !== undefined) query.set('limit', String(params.limit));
+  
+  const queryString = query.toString();
+  return request<AuditTaskListResponse>(
+    `/api/projects/${projectId}/tasks${queryString ? `?${queryString}` : ''}`,
+    locale
+  );
+}
+
+/**
+ * Fetch a single audit task / 获取单个审计任务
+ *
+ * @param locale - Current locale for i18n / 当前语言环境
+ * @param projectId - Project ID / 项目ID
+ * @param taskId - Task ID / 任务ID
+ * @returns Promise resolving to audit task / 返回审计任务
+ */
+export function fetchAuditTask(locale: Locale, projectId: string, taskId: string) {
+  return request<AuditTask>(`/api/projects/${projectId}/tasks/${taskId}`, locale);
+}
+
+/**
+ * Create a new audit task / 创建新的审计任务
+ *
+ * @param locale - Current locale for i18n / 当前语言环境
+ * @param projectId - Project ID / 项目ID
+ * @param payload - Task creation data / 任务创建数据
+ * @returns Promise resolving to created audit task / 返回创建的审计任务
+ */
+export function createAuditTask(locale: Locale, projectId: string, payload: AuditTaskCreate) {
+  return request<AuditTask>(`/api/projects/${projectId}/tasks`, locale, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+/**
+ * Cancel an audit task / 取消审计任务
+ *
+ * @param locale - Current locale for i18n / 当前语言环境
+ * @param projectId - Project ID / 项目ID
+ * @param taskId - Task ID / 任务ID
+ * @returns Promise resolving to cancelled audit task / 返回取消的审计任务
+ */
+export function cancelAuditTask(locale: Locale, projectId: string, taskId: string) {
+  return request<AuditTask>(`/api/projects/${projectId}/tasks/${taskId}/cancel`, locale, {
+    method: 'POST',
+  });
 }
 
 export { ApiError };

@@ -3,6 +3,8 @@ import { getAccessToken } from '../auth/session';
 import LoginView from '../views/LoginView.vue';
 import MissionsView from '../views/MissionsView.vue';
 import OverviewView from '../views/OverviewView.vue';
+import ProjectDetailView from '../views/ProjectDetailView.vue';
+import ProjectsView from '../views/ProjectsView.vue';
 import ReportView from '../views/ReportView.vue';
 import SettingsView from '../views/SettingsView.vue';
 import UsersView from '../views/UsersView.vue';
@@ -13,7 +15,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/overview',
+      redirect: '/projects',
     },
     {
       path: '/login',
@@ -25,6 +27,18 @@ const router = createRouter({
       path: '/overview',
       name: 'overview',
       component: OverviewView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/projects',
+      name: 'projects',
+      component: ProjectsView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/projects/:id',
+      name: 'project-detail',
+      component: ProjectDetailView,
       meta: { requiresAuth: true },
     },
     {

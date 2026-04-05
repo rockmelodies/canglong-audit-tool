@@ -19,6 +19,8 @@ export const messages = {
       languageTitle: 'Language',
       logout: 'Logout',
       nav: {
+        projectsLabel: 'Projects',
+        projectsMeta: 'Manage projects',
         overviewLabel: 'Overview',
         overviewMeta: 'Signal map',
         workspaceLabel: 'Workspace',
@@ -248,6 +250,7 @@ export const messages = {
       stack: 'Stack',
     },
     users: {
+      role: 'Role',
       heroEyebrow: 'User Management',
       title: 'Manage users, permissions, and API keys',
       description: 'Control access to the audit platform, manage team members, and configure API keys for automation.',
@@ -305,6 +308,7 @@ export const messages = {
     },
     userGuide: {
       title: 'Quick Start Guide',
+      welcomeTitle: 'Welcome to Canglong Audit Platform',
       stepOneTitle: 'Configure Model',
       stepOneDesc: 'Go to Settings page and configure a default AI model for audit tasks.',
       stepTwoTitle: 'Add Repository',
@@ -316,8 +320,16 @@ export const messages = {
       previous: 'Previous',
       next: 'Next',
       skip: 'Skip',
+      startNow: 'Start Now',
       dontShowAgain: 'Don\'t show this guide again',
       close: 'Close',
+    },
+    guide: {
+      welcomeTitle: 'Welcome to Canglong Audit Platform',
+      previous: 'Previous',
+      next: 'Next',
+      startNow: 'Start Now',
+      dontShowAgain: 'Don\'t show this guide again',
     },
     auditProgress: {
       title: 'Audit Progress',
@@ -345,6 +357,15 @@ export const messages = {
       paused: 'Paused',
       running: 'Running',
     },
+    progress: {
+      files: 'Files',
+      findings: 'Findings',
+      time: 'Time',
+      recentFindings: 'Recent Findings',
+      pause: 'Pause',
+      resume: 'Resume',
+      close: 'Close',
+    },
   },
   'zh-CN': {
     shell: {
@@ -356,6 +377,8 @@ export const messages = {
       languageTitle: '语言切换',
       logout: '退出登录',
       nav: {
+        projectsLabel: '项目',
+        projectsMeta: '管理项目',
         overviewLabel: '总览',
         overviewMeta: '信号地图',
         workspaceLabel: '工作台',
@@ -583,6 +606,7 @@ export const messages = {
     },
     userGuide: {
       title: '快速入门指南',
+      welcomeTitle: '欢迎使用苍龙审计平台',
       stepOneTitle: '配置模型',
       stepOneDesc: '前往设置页面，配置用于审计任务的默认AI模型。',
       stepTwoTitle: '添加仓库',
@@ -594,8 +618,16 @@ export const messages = {
       previous: '上一步',
       next: '下一步',
       skip: '跳过',
+      startNow: '立即开始',
       dontShowAgain: '不再显示此引导',
       close: '关闭',
+    },
+    guide: {
+      welcomeTitle: '欢迎使用苍龙审计平台',
+      previous: '上一步',
+      next: '下一步',
+      startNow: '立即开始',
+      dontShowAgain: '不再显示此引导',
     },
     auditProgress: {
       title: '审计进度',
@@ -623,7 +655,17 @@ export const messages = {
       paused: '已暂停',
       running: '运行中',
     },
+    progress: {
+      files: '文件',
+      findings: '发现',
+      time: '时间',
+      recentFindings: '最近发现',
+      pause: '暂停',
+      resume: '继续',
+      close: '关闭',
+    },
     users: {
+      role: '角色',
       heroEyebrow: '用户管理',
       title: '管理用户、权限和API密钥',
       description: '控制审计平台的访问权限，管理团队成员，配置API密钥用于自动化。',

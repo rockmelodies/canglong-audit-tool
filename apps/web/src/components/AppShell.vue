@@ -64,6 +64,7 @@ const router = useRouter();
 const { locale, locales, setLocale, t } = useI18n();
 
 const navItems = computed(() => [
+  { to: '/projects', label: t('shell.nav.projectsLabel'), meta: t('shell.nav.projectsMeta'), icon: '📁' },
   { to: '/overview', label: t('shell.nav.overviewLabel'), meta: t('shell.nav.overviewMeta'), icon: '📊' },
   { to: '/workspace', label: t('shell.nav.workspaceLabel'), meta: t('shell.nav.workspaceMeta'), icon: '🔧' },
   { to: '/missions', label: t('shell.nav.missionsLabel'), meta: t('shell.nav.missionsMeta'), icon: '🎯' },

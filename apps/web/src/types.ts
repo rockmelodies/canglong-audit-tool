@@ -267,6 +267,134 @@ export interface AuditJob {
   error: string | null;
 }
 
+// ==================== Project Management Types ====================
+// 项目管理类型定义 / Project Management Type Definitions
+
+/** 审计类型 / Audit Type */
+export type AuditType = 'sast' | 'dast' | 'sca' | 'secret' | 'comprehensive';
+
+/** 审计任务状态 / Audit Task Status */
+export type AuditTaskStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
+
+/** 审计类型信息 / Audit Type Information */
+export interface AuditTypeInfo {
+  code: AuditType;
+  name: string;
+  fullName: string;
+  fullNameEn: string;
+  description: string;
+  descriptionEn: string;
+  icon: string;
+  color: string;
+  bgColor: string;
+  borderColor: string;
+}
+
+/** 项目仓库信息 / Project Repository Information */
+export interface ProjectRepository {
+  type: 'git' | 'local';
+  url: string | null;
+  localPath: string | null;
+  branch: string;
+  lastSyncAt: string | null;
+  syncStatus: 'idle' | 'syncing' | 'success' | 'failed';
+}
+
+/** 项目统计信息 / Project Statistics */
+export interface ProjectStatistics {
+  totalAudits: number;
+  lastAuditAt: string | null;
+  totalFindings: number;
+  criticalFindings: number;
+  highFindings: number;
+}
+
+/** 项目设置 / Project Settings */
+export interface ProjectSettings {
+  defaultAuditType: AuditType;
+  autoSync: boolean;
+  notifications: boolean;
+}
+
+/** 项目模型 / Project Model */
+export interface Project {
+  id: string;
+  name: string;
+  description: string | null;
+  repository: ProjectRepository;
+  statistics: ProjectStatistics;
+  settings: ProjectSettings;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** 创建项目请求 / Create Project Request */
+export interface ProjectCreate {
+  name: string;
+  description?: string;
+  repository: ProjectRepository;
+  settings?: ProjectSettings;
+}
+
+/** 更新项目请求 / Update Project Request */
+export interface ProjectUpdate {
+  name?: string;
+  description?: string;
+  settings?: ProjectSettings;
+}
+
+/** 项目列表响应 / Project List Response */
+export interface ProjectListResponse {
+  projects: Project[];
+  total: number;
+}
+
+/** 审计任务配置 / Audit Task Configuration */
+export interface AuditTaskConfig {
+  scope: string[];
+  rules: string[];
+  excludePatterns: string[];
+  runtimeUrl?: string;
+}
+
+/** 审计任务结果 / Audit Task Result */
+export interface AuditTaskResult {
+  filesScanned: number;
+  findingsTotal: number;
+  findingsBySeverity: Record<string, number>;
+  duration: number;
+}
+
+/** 审计任务模型 / Audit Task Model */
+export interface AuditTask {
+  id: string;
+  projectId: string;
+  projectName: string;
+  type: AuditType;
+  status: AuditTaskStatus;
+  progress: number;
+  currentStep: string | null;
+  config: AuditTaskConfig;
+  result: AuditTaskResult | null;
+  error: string | null;
+  createdAt: string;
+  startedAt: string | null;
+  completedAt: string | null;
+}
+
+/** 创建审计任务请求 / Create Audit Task Request */
+export interface AuditTaskCreate {
+  projectId: string;
+  type: AuditType;
+  config?: AuditTaskConfig;
+}
+
+/** 审计任务列表响应 / Audit Task List Response */
+export interface AuditTaskListResponse {
+  tasks: AuditTask[];
+  total: number;
+}
+
 export interface AuditSummary {
   filesScanned: number;
   endpointsDiscovered: number;
