@@ -32,10 +32,12 @@
 > Canglong is designed to feel less like a noisy rule dump and more like a senior reviewer:
 > correlate code evidence, reduce false positives, identify exploit paths, stage replay plans, and route model-assisted work to the right lane.
 
-![img_6.png](img_6.png)
-![img_7.png](img_7.png)
-![img_8.png](img_8.png)
-![img_11.png](img_11.png)
+![img_12.png](img_12.png)
+![img_13.png](img_13.png)
+![img_14.png](img_14.png)
+![img_16.png](img_16.png)
+![img_17.png](img_17.png)
+
 
 ## Table Of Contents
 
