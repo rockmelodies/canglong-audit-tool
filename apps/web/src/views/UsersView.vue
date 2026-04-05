@@ -323,7 +323,8 @@ import {
 } from '../services/api';
 
 // Internationalization hook / 国际化钩子
-const { t } = useI18n();
+// Destructure both t function and locale ref / 解构t函数和locale引用
+const { t, locale } = useI18n();
 
 // Active tab state: 'users' | 'keys' | 'invites'
 // 活动标签页状态：'users' | 'keys' | 'invites'
@@ -470,7 +471,7 @@ function showSuccess(message: string) {
  */
 async function loadPermissions() {
   try {
-    currentUserPermissions.value = await fetchMyPermissions(t.locale.value);
+    currentUserPermissions.value = await fetchMyPermissions(locale.value);
   } catch (error) {
     console.error('Failed to load permissions:', error);
   }
@@ -484,7 +485,7 @@ async function loadUsers() {
   loading.value = true;
   errorMessage.value = '';
   try {
-    users.value = await fetchUsers(t.locale.value);
+    users.value = await fetchUsers(locale.value);
   } catch (error) {
     errorMessage.value = String(error);
   } finally {
@@ -500,9 +501,9 @@ async function loadApiKeys() {
   loadingKeys.value = true;
   try {
     // Load user's own API keys / 加载用户自己的API密钥
-    const myKeys = await fetchMyApiKeys(t.locale.value);
+    const myKeys = await fetchMyApiKeys(locale.value);
     // If admin, also load all API keys / 如果是管理员，也加载所有API密钥
-    const allKeys = canManageApiKeys.value ? await fetchAllApiKeys(t.locale.value) : [];
+    const allKeys = canManageApiKeys.value ? await fetchAllApiKeys(locale.value) : [];
     // Combine and deduplicate / 合并并去重
     const keyMap = new Map<string, ApiKey & { key?: string }>();
     myKeys.forEach(key => keyMap.set(key.id, key));
@@ -522,7 +523,7 @@ async function loadApiKeys() {
 async function loadInvites() {
   loadingInvites.value = true;
   try {
-    const invitesData = await fetchInvites(t.locale.value);
+    const invitesData = await fetchInvites(locale.value);
     // Generate invite links for pending invites / 为待处理的邀请生成邀请链接
     invites.value = invitesData.map(invite => ({
       ...invite,
@@ -545,7 +546,7 @@ async function loadInvites() {
  */
 async function handleCreateUser() {
   try {
-    await createUser(t.locale.value, {
+    await createUser(locale.value, {
       username: newUser.username,
       password: newUser.password,
       displayName: newUser.displayName,
@@ -575,7 +576,7 @@ async function handleCreateUser() {
 async function handleDeleteUser(username: string) {
   if (!confirm(t('users.confirmDelete'))) return;
   try {
-    await deleteUser(t.locale.value, username);
+    await deleteUser(locale.value, username);
     showSuccess('User deleted successfully');
     await loadUsers();
   } catch (error) {
@@ -604,7 +605,7 @@ function openEditUserModal(user: User) {
  */
 async function handleCreateKey() {
   try {
-    const result = await createApiKey(t.locale.value, {
+    const result = await createApiKey(locale.value, {
       name: newKey.name,
       permissions: newKey.permissions,
       expiresAt: newKey.expiresAt || undefined,
@@ -637,9 +638,9 @@ async function handleRevokeKey(keyId: string) {
     // Try to revoke as admin first, fall back to user revoke
     // 首先尝试作为管理员撤销，回退到用户撤销
     try {
-      await revokeAnyApiKey(t.locale.value, keyId);
+      await revokeAnyApiKey(locale.value, keyId);
     } catch {
-      await revokeMyApiKey(t.locale.value, keyId);
+      await revokeMyApiKey(locale.value, keyId);
     }
     showSuccess('API key revoked successfully');
     await loadApiKeys();
@@ -656,7 +657,7 @@ async function handleRevokeKey(keyId: string) {
  */
 async function handleCreateInvite() {
   try {
-    await createInvite(t.locale.value, {
+    await createInvite(locale.value, {
       email: newInvite.email,
       role: newInvite.role,
     });
@@ -680,7 +681,7 @@ async function handleCreateInvite() {
 async function handleRevokeInvite(inviteId: string) {
   if (!confirm(t('users.confirmRevokeInvite'))) return;
   try {
-    await revokeInvite(t.locale.value, inviteId);
+    await revokeInvite(locale.value, inviteId);
     showSuccess('Invitation revoked successfully');
     await loadInvites();
   } catch (error) {

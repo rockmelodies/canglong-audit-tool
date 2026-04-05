@@ -38,6 +38,7 @@ from app.routers.missions import router as missions_router
 from app.routers.repos import router as repos_router
 from app.routers.settings import router as settings_router
 from app.routers.users import router as users_router
+from app.routers.history import router as history_router
 
 # Configure logging / 配置日志
 logging.basicConfig(
@@ -57,8 +58,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     处理应用程序的启动和关闭事件。
     
     Startup / 启动:
-    - Initialize database connections (if using a real database)
-      初始化数据库连接（如果使用真实数据库）
+    - Initialize database connections and create tables
+      初始化数据库连接并创建表
     - Load configuration
       加载配置
     - Warm up caches
@@ -72,13 +73,20 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """
     logger.info("Starting Canglong API server... / 正在启动苍龙API服务器...")
     
-    # Startup logic here / 此处添加启动逻辑
-    # Example: Initialize database connection pool
-    # 示例：初始化数据库连接池
+    # Initialize database / 初始化数据库
+    from app.services.database import init_db, close_db
+    
+    try:
+        await init_db()
+        logger.info("Database initialized successfully / 数据库初始化成功")
+    except Exception as e:
+        logger.error(f"Failed to initialize database: {e} / 数据库初始化失败: {e}")
+        raise
     
     yield
     
-    # Shutdown logic here / 此处添加关闭逻辑
+    # Close database connections / 关闭数据库连接
+    await close_db()
     logger.info("Shutting down Canglong API server... / 正在关闭苍龙API服务器...")
 
 
@@ -153,6 +161,9 @@ app.include_router(settings_router, tags=["Settings"])
 
 # User management / 用户管理
 app.include_router(users_router, tags=["User Management"])
+
+# Audit history / 审计历史
+app.include_router(history_router, tags=["Audit History"])
 
 
 @app.get(
