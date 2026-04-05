@@ -30,7 +30,7 @@ from datetime import datetime, timedelta
 from secrets import token_urlsafe
 from typing import Any
 
-from fastapi import Header, HTTPException, status
+from fastapi import Depends, Header, HTTPException, status
 
 from app.models.schemas import (
     ApiKeyResponse,
@@ -1113,7 +1113,7 @@ def require_permission(permission: str):
         HTTPException: 401 if unauthorized, 403 if forbidden /
         未认证抛出401，无权限抛出403
     """
-    def decorator(current_user: UserProfile = Header(default=None)) -> UserProfile:
+    def decorator(current_user: UserProfile = Depends(get_current_user)) -> UserProfile:
         if not current_user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -1128,13 +1128,13 @@ def require_permission(permission: str):
     return decorator
 
 
-def require_admin(current_user: UserProfile = Header(default=None)) -> UserProfile:
+def require_admin(current_user: UserProfile = Depends(get_current_user)) -> UserProfile:
     """
     FastAPI dependency to require administrator role.
     FastAPI依赖，用于要求管理员角色。
     
     Args / 参数:
-        current_user: Current user profile / 当前用户配置
+        current_user: Current user profile (injected via Depends) / 当前用户配置（通过Depends注入）
         
     Returns / 返回:
         UserProfile of admin user / 管理员用户的UserProfile
