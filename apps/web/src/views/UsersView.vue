@@ -1270,26 +1270,3 @@ onMounted(async () => {
   }
 }
 </style>
-  cursor: pointer;
-}
-
-.error-text {
-  color: #ff9b6a;
-}
-
-@media (max-width: 900px) {
-  .hero {
-    grid-template-columns: 1fr;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .user-grid,
-  .key-grid,
-  .invite-grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>

@@ -410,15 +410,3 @@ function handleLogout() {
   }
 }
 </style>
-  }
-
-  .sidebar {
-    position: static;
-    height: auto;
-  }
-
-  .logout-button {
-    margin-top: 0;
-  }
-}
-</style>
