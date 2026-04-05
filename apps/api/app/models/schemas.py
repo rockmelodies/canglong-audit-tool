@@ -343,3 +343,131 @@ class AuditReport(BaseModel):
     interfaceTests: list[InterfaceTestPlan]
     findings: list[VulnerabilityFinding]
     recommendations: list[str]
+
+
+# User Management Models
+UserRole = Literal["administrator", "auditor", "viewer"]
+ApiKeyStatus = Literal["active", "revoked", "expired"]
+InviteStatus = Literal["pending", "accepted", "expired", "revoked"]
+
+
+class UserCreate(BaseModel):
+    username: str
+    password: str
+    displayName: str
+    email: str | None = None
+    role: UserRole = "viewer"
+
+
+class UserUpdate(BaseModel):
+    displayName: str | None = None
+    email: str | None = None
+    role: UserRole | None = None
+    isActive: bool | None = None
+
+
+class UserResponse(BaseModel):
+    username: str
+    displayName: str
+    email: str | None
+    role: UserRole
+    isActive: bool
+    createdAt: str
+    lastLogin: str | None
+
+
+class ApiKeyCreate(BaseModel):
+    name: str
+    permissions: list[str] = Field(default_factory=lambda: ["read"])
+    expiresAt: str | None = None
+
+
+class ApiKeyResponse(BaseModel):
+    id: str
+    name: str
+    key: str | None = None  # Only returned on creation
+    userId: str
+    permissions: list[str]
+    status: ApiKeyStatus
+    createdAt: str
+    expiresAt: str | None
+    lastUsed: str | None
+
+
+class UserInviteCreate(BaseModel):
+    email: str
+    role: UserRole = "viewer"
+
+
+class UserInviteResponse(BaseModel):
+    """用户邀请响应模型 / User invitation response model
+
+    用于返回用户邀请的详细信息，包括邀请链接、状态等。
+    Used to return detailed information about user invitations, including invite links and status.
+
+    Attributes:
+        id: 邀请ID / Invitation ID
+        email: 被邀请用户邮箱 / Email of invited user
+        role: 分配的角色 / Assigned role
+        invitedBy: 邀请人用户名 / Username of inviter
+        createdAt: 邀请创建时间 / Invitation creation time
+        expiresAt: 邀请过期时间 / Invitation expiration time
+        status: 邀请状态 / Invitation status
+        inviteLink: 邀请链接（仅在创建时返回）/ Invite link (only returned on creation)
+    """
+    id: str
+    email: str
+    role: UserRole
+    invitedBy: str
+    createdAt: str
+    expiresAt: str
+    status: InviteStatus
+    inviteLink: str | None = None  # Only returned on creation
+
+
+class AcceptInviteRequest(BaseModel):
+    """接受邀请请求模型 / Accept invitation request model
+
+    用于用户接受邀请时提交的请求体，包含用户注册信息。
+    Used for the request body when a user accepts an invitation, containing user registration information.
+
+    Attributes:
+        username: 用户名（3-32字符，字母开头，仅包含字母、数字和下划线）/ Username (3-32 chars, starts with letter, alphanumeric + underscore only)
+        password: 密码（至少8位，必须包含大小写字母、数字和特殊字符）/ Password (min 8 chars, must contain uppercase, lowercase, digit, and special char)
+        displayName: 显示名称 / Display name
+    """
+    username: str = Field(
+        ...,
+        min_length=3,
+        max_length=32,
+        pattern=r'^[a-zA-Z][a-zA-Z0-9_]*$',
+        description="用户名，3-32字符，字母开头，仅包含字母、数字和下划线 / Username, 3-32 chars, starts with letter, alphanumeric + underscore only"
+    )
+    password: str = Field(
+        ...,
+        min_length=8,
+        description="密码，至少8位，必须包含大小写字母、数字和特殊字符 / Password, min 8 chars, must contain uppercase, lowercase, digit, and special char"
+    )
+    displayName: str = Field(
+        ...,
+        min_length=1,
+        max_length=100,
+        description="显示名称 / Display name"
+    )
+
+
+class UserListResponse(BaseModel):
+    users: list[UserResponse]
+    total: int
+
+
+class ApiKeyListResponse(BaseModel):
+    keys: list[ApiKeyResponse]
+    total: int
+
+
+class PermissionCheck(BaseModel):
+    resource: str
+    action: str
+    allowed: bool
+    reason: str | None = None

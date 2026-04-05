@@ -509,11 +509,21 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+/*
+  报告页面样式 - 商业化设计系统
+  Report page styles - Commercial design system
+  
+  使用CSS变量实现一致的品牌视觉
+  Uses CSS variables for consistent brand visuals
+*/
+
+/* 页面容器 / Page container */
 .page {
   display: grid;
   gap: 24px;
 }
 
+/* 章节标题区域 / Section heading area */
 .section-heading,
 .job-top,
 .progress-row,
@@ -524,38 +534,57 @@ onBeforeUnmount(() => {
   align-items: flex-start;
 }
 
+/* 页面标题 / Page title */
 .page h1,
 .job-top h2 {
   margin: 10px 0 0;
   font-size: clamp(2rem, 5vw, 3.8rem);
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
+/* 任务标题 / Job title */
 .job-top h2 {
   font-size: 1.4rem;
 }
 
+/* 幽灵按钮 / Ghost button */
 .ghost-button {
-  padding: 12px 14px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text-main);
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
+/* 幽灵按钮悬停 / Ghost button hover */
+.ghost-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* 幽灵按钮禁用 / Ghost button disabled */
 .ghost-button:disabled {
   opacity: 0.6;
   cursor: progress;
 }
 
+/* 摘要元数据 / Summary metadata */
 .summary-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 14px;
   margin-top: 18px;
-  color: var(--text-soft);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
 }
 
+/* 网格布局 / Grid layouts */
 .focus-grid,
 .stats-grid,
 .detail-grid,
@@ -564,36 +593,54 @@ onBeforeUnmount(() => {
   gap: 16px;
 }
 
+/* 焦点网格 / Focus grid */
 .focus-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+/* 统计网格 / Stats grid */
 .stats-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   margin-top: 24px;
 }
 
+/* 详情网格 / Detail grid */
 .detail-grid,
 .two-column {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+/* 卡片基础样式 / Card base styles */
 .stat-card,
 .row-card,
 .check-card,
 .focus-card {
   padding: 18px;
-  border-radius: 18px;
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
 }
 
+/* 卡片悬停效果 / Card hover effect */
+.stat-card:hover,
+.row-card:hover,
+.check-card:hover,
+.focus-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(59, 130, 246, 0.15);
+  transform: translateY(-2px);
+}
+
+/* 焦点卡片标题 / Focus card title */
 .focus-card strong {
   display: block;
   margin-top: 8px;
   font-size: 1.2rem;
+  color: var(--text-primary);
 }
 
+/* 卡片次要文字 / Card secondary text */
 .stat-card span,
 .row-card span,
 .row-card p,
@@ -603,21 +650,26 @@ onBeforeUnmount(() => {
 .check-card span,
 .check-card p,
 .focus-card p {
-  color: var(--text-dim);
+  color: var(--text-secondary);
 }
 
+/* 统计卡片数值 / Stat card value */
 .stat-card strong {
   display: block;
   margin-top: 8px;
   font-size: 2rem;
+  color: var(--text-primary);
 }
 
+/* 警告卡片 / Warning card */
 .warning {
   background:
-    radial-gradient(circle at top right, rgba(255, 122, 26, 0.16), transparent 30%),
+    radial-gradient(circle at top right, rgba(245, 158, 11, 0.12), transparent 30%),
     rgba(255, 255, 255, 0.03);
+  border-color: rgba(245, 158, 11, 0.2);
 }
 
+/* 列表布局 / List layouts */
 .table-list,
 .stack-list,
 .check-list,
@@ -627,24 +679,31 @@ onBeforeUnmount(() => {
   margin-top: 20px;
 }
 
+/* 行卡片标题 / Row card title */
 .row-card strong,
 .check-card strong {
   display: block;
   margin-bottom: 8px;
+  color: var(--text-primary);
 }
 
+/* 链条卡片 / Chain card */
 .chain-card,
 .finding-card {
   background:
-    radial-gradient(circle at top right, rgba(0, 212, 170, 0.08), transparent 26%),
+    radial-gradient(circle at top right, rgba(16, 185, 129, 0.08), transparent 26%),
     rgba(255, 255, 255, 0.03);
+  border-color: rgba(16, 185, 129, 0.15);
 }
 
+/* 章节标志 / Section flag */
 .section-flag {
   padding: 0 4px;
-  color: var(--text-soft);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
 }
 
+/* 芯片行 / Chip row */
 .chip-row {
   display: flex;
   flex-wrap: wrap;
@@ -652,10 +711,12 @@ onBeforeUnmount(() => {
   margin-top: 14px;
 }
 
+/* 紧凑布局 / Compact layout */
 .compact {
   margin-top: 0;
 }
 
+/* 进度条 / Progress bar */
 .progress-bar {
   margin-top: 10px;
   height: 10px;
@@ -664,80 +725,125 @@ onBeforeUnmount(() => {
   overflow: hidden;
 }
 
+/* 进度条填充 / Progress bar fill */
 .progress-bar span {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, rgba(255, 122, 26, 0.95), rgba(0, 212, 170, 0.95));
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%);
+  transition: width 0.3s ease;
 }
 
+/* 代码块 / Code block */
 .code-block {
   margin: 10px 0 0;
   padding: 12px 14px;
-  border-radius: 14px;
-  background: rgba(4, 10, 14, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  color: #d8fff2;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
   white-space: pre-wrap;
   word-break: break-word;
-  font-family: 'Consolas', 'SFMono-Regular', monospace;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
   font-size: 0.9rem;
+  line-height: 1.5;
 }
 
+/* 运行时警告 / Runtime alert */
 .runtime-alert {
   margin-top: 16px;
   padding: 14px;
-  border-radius: 16px;
-  background: rgba(255, 122, 26, 0.1);
-  border: 1px solid rgba(255, 122, 26, 0.2);
+  border-radius: 12px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.2);
 }
 
+/* 运行时警告标题 / Runtime alert title */
+.runtime-alert strong {
+  color: var(--color-warning);
+}
+
+/* 运行时警告段落 / Runtime alert paragraph */
 .runtime-alert p {
   margin-bottom: 0;
+  color: var(--text-secondary);
 }
 
+/* 强调标签 / Emphasis tag */
 .emphasis {
-  border-color: rgba(0, 212, 170, 0.28);
-  background: rgba(0, 212, 170, 0.14);
+  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-accent);
 }
 
-.warning-pill,
+/* 警告标签 / Warning tag */
+.warning-pill {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--color-warning);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* 高危状态 / High status */
 .status-high {
-  color: #ffbf9f;
+  background: rgba(244, 63, 94, 0.15);
+  color: var(--color-danger);
+  border: 1px solid rgba(244, 63, 94, 0.3);
 }
 
+/* 中危状态 / Medium status */
+.status-medium {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--color-warning);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* 正常状态 / OK status */
+.status-ok {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-accent);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+/* 中性状态 / Neutral status */
+.status-neutral {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* 状态标签基础样式 / Status tag base styles */
 .status-high,
 .status-medium,
 .status-ok,
 .status-neutral {
   display: inline-flex;
-  padding: 4px 8px;
+  padding: 4px 10px;
   border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
 }
 
-.status-high {
-  background: rgba(255, 122, 26, 0.12);
-}
-
-.status-medium {
-  background: rgba(255, 211, 102, 0.1);
-  color: #ffe29a;
-}
-
-.status-ok {
-  background: rgba(0, 212, 170, 0.12);
-  color: #84ffd9;
-}
-
-.status-neutral {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text-soft);
-}
-
+/* 错误提示文字 / Error text */
 .error-text {
-  color: #ff9b6a;
+  color: var(--color-danger);
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(244, 63, 94, 0.1);
+  border: 1px solid rgba(244, 63, 94, 0.2);
+  font-size: 0.9rem;
 }
 
+/* 提示文字 / Notice text */
+.notice {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* 响应式设计 - 中等屏幕 / Responsive - Medium screens */
 @media (max-width: 960px) {
   .focus-grid,
   .stats-grid,
@@ -750,6 +856,35 @@ onBeforeUnmount(() => {
   .job-top,
   .chain-header {
     flex-direction: column;
+    gap: 12px;
+  }
+}
+
+/* 响应式设计 - 小屏幕 / Responsive - Small screens */
+@media (max-width: 760px) {
+  .page h1 {
+    font-size: clamp(1.8rem, 5vw, 3rem);
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* 响应式设计 - 移动端 / Responsive - Mobile */
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .chip-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .capsule {
+    width: 100%;
+    text-align: center;
   }
 }
 </style>

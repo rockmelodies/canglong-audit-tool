@@ -1,5 +1,17 @@
 <template>
   <div class="page">
+    <!-- User Guide Component -->
+    <UserGuide />
+
+    <!-- Audit Progress Component - Show when there are running audits -->
+    <AuditProgress
+      v-if="runningAudits.length > 0"
+      :audits="runningAudits"
+      @pause="handlePauseAudit"
+      @resume="handleResumeAudit"
+      @close="handleCloseAuditProgress"
+    />
+
     <section class="hero panel workspace-hero">
       <div>
         <p class="eyebrow">{{ t('workspace.heroEyebrow') }}</p>
@@ -199,11 +211,13 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from '../i18n';
 import { ApiError, createRepo, fetchAudits, fetchModelSettings, fetchRepos, startAudit, syncRepo } from '../services/api';
 import type { AuditJob, RepoConfig } from '../types';
+import UserGuide from '../components/UserGuide.vue';
+import AuditProgress from '../components/AuditProgress.vue';
 
 const router = useRouter();
 const { locale, t } = useI18n();
@@ -219,6 +233,11 @@ const feedbackMessage = ref('');
 const pollHandle = ref<number | null>(null);
 const modelReady = ref(false);
 const modelNextAction = ref('');
+
+// Computed property for running audits
+const runningAudits = computed(() => {
+  return audits.value.filter(audit => audit.status === 'running' || audit.status === 'queued');
+});
 
 const form = reactive({
   sourceType: 'git' as 'git' | 'local',
@@ -368,6 +387,22 @@ function formatStatus(value: string) {
   }
 
   return locale.value === 'zh-CN' ? translated.zh : translated.en;
+}
+
+// Audit progress event handlers
+function handlePauseAudit(auditId: string) {
+  console.log('Pausing audit:', auditId);
+  // TODO: Implement pause functionality via API
+}
+
+function handleResumeAudit(auditId: string) {
+  console.log('Resuming audit:', auditId);
+  // TODO: Implement resume functionality via API
+}
+
+function handleCloseAuditProgress() {
+  console.log('Closing audit progress panel');
+  // The panel will auto-hide when no running audits exist
 }
 
 onMounted(async () => {

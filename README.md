@@ -41,12 +41,14 @@
 
 - [Why Canglong](#why-canglong)
 - [What Works Today](#what-works-today)
+- [Security Detection Rules](#security-detection-rules)
 - [Java Audit Strategy](#java-audit-strategy)
 - [Model Mesh](#model-mesh)
 - [Quick Start](#quick-start)
 - [Operator Flow](#operator-flow)
 - [API Surface](#api-surface)
 - [Repository Layout](#repository-layout)
+- [Development Guide](#development-guide)
 - [Roadmap](#roadmap)
 - [Notes](#notes)
 
@@ -77,6 +79,7 @@ Canglong is being shaped as one operator-facing workbench that combines:
 - Repository workspace for Git URLs and local source directories
 - Model settings page for multi-provider configuration and default lane selection
 - Audit progress tracking with stages, progress bars, and final report view
+- Enhanced UI with smooth animations and visual feedback
 
 ### Audit Engine
 
@@ -94,6 +97,37 @@ Canglong is being shaped as one operator-facing workbench that combines:
 - automatic Java exploit-chain candidates with applicability checks
 - runtime-aware demotion for modern JDK constraints
 - dependency-backed reduction of noisy chain promotion
+
+## Security Detection Rules
+
+Canglong includes comprehensive security detection rules covering multiple vulnerability categories:
+
+### Critical Severity
+
+| Category | Description | Detection Pattern |
+|----------|-------------|-------------------|
+| Command Execution | OS command injection risks | `subprocess.run(shell=True)`, `os.system()`, `Runtime.exec()`, `ProcessBuilder` |
+| SQL Injection | Unparameterized SQL queries | String concatenation in SQL, dynamic query building |
+| Unsafe Deserialization | Insecure object reconstruction | `pickle.loads()`, `yaml.load()`, `ObjectInputStream`, `readObject()` |
+| Hardcoded Credentials | Credentials in source code | Hardcoded passwords, API keys, secrets |
+
+### High Severity
+
+| Category | Description | Detection Pattern |
+|----------|-------------|-------------------|
+| XSS | Cross-site scripting risks | `innerHTML`, `dangerouslySetInnerHTML`, `v-html` |
+| SSRF | Server-side request forgery | `requests.get()`, `urllib.urlopen()`, `HttpClient` with user URLs |
+| Path Traversal | Directory traversal risks | File operations with user input, path concatenation |
+| Auth Bypass | Authentication bypass branches | `@PermitAll`, `skipAuth`, `AllowAnonymous` |
+| Insecure File Upload | Unvalidated file uploads | File upload handlers without type validation |
+
+### Medium Severity
+
+| Category | Description | Detection Pattern |
+|----------|-------------|-------------------|
+| Weak Crypto | Weak cryptographic primitives | MD5, SHA-1 usage in security contexts |
+| Insecure Random | Predictable random numbers | `Math.random()`, `random.random()` in security contexts |
+| Info Disclosure | Information leakage | Debug output, stack traces, verbose errors |
 
 ## Java Audit Strategy
 
@@ -134,7 +168,7 @@ Canglong can currently emit candidates such as:
 
 ## Model Mesh
 
-The product direction is not “show a long vendor list”. The goal is practical routing:
+The product direction is not "show a long vendor list". The goal is practical routing:
 
 - use a strong general-purpose reasoning model as the default audit lane
 - route long-context review to long-context models
@@ -159,6 +193,12 @@ The product direction is not “show a long vendor list”. The goal is practica
 
 ## Quick Start
 
+### Prerequisites
+
+- Python 3.11+ for backend API
+- Node.js 18+ for frontend
+- Docker (optional, for containerized deployment)
+
 ### 1. Run the web app
 
 ```bash
@@ -167,21 +207,33 @@ npm install
 npm run dev
 ```
 
+The frontend will be available at `http://localhost:5173`
+
 ### 2. Run the API
 
 ```bash
 cd apps/api
 python -m venv .venv
+
+# On Windows
 .venv\Scripts\activate
+
+# On Linux/macOS
+source .venv/bin/activate
+
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 9000
 ```
+
+The API will be available at `http://localhost:9000`
 
 ### 3. Run with Docker Compose
 
 ```bash
 docker compose up --build
 ```
+
+This will start both frontend and backend services with all dependencies.
 
 ### Demo access
 
@@ -238,17 +290,31 @@ docker compose up --build
 |   |-- api
 |   |   |-- app
 |   |   |   |-- models
+|   |   |   |   `-- schemas.py       # Pydantic models
 |   |   |   |-- routers
+|   |   |   |   |-- audits.py        # Audit endpoints
+|   |   |   |   |-- auth.py          # Authentication
+|   |   |   |   |-- dashboard.py     # Dashboard data
+|   |   |   |   |-- llm.py           # Model mesh
+|   |   |   |   |-- missions.py      # Mission management
+|   |   |   |   |-- repos.py         # Repository management
+|   |   |   |   `-- settings.py      # Model settings
 |   |   |   `-- services
+|   |   |       |-- audit_engine.py  # Core audit logic
+|   |   |       |-- auth_service.py  # Auth implementation
+|   |   |       |-- model_settings.py
+|   |   |       `-- repo_manager.py
 |   |   |-- Dockerfile
 |   |   `-- requirements.txt
 |   `-- web
 |       |-- src
-|       |   |-- components
-|       |   |-- router
-|       |   |-- services
-|       |   |-- styles
-|       |   `-- views
+|       |   |-- components           # Vue components
+|       |   |-- router               # Vue Router config
+|       |   |-- services             # API clients
+|       |   |-- styles               # CSS styles
+|       |   |-- views                # Page components
+|       |   |-- i18n                 # Internationalization
+|       |   `-- auth                 # Authentication
 |       |-- Dockerfile
 |       `-- package.json
 |-- docs
@@ -256,6 +322,41 @@ docker compose up --build
 |-- docker-compose.yml
 `-- package.json
 ```
+
+## Development Guide
+
+### Adding New Security Rules
+
+To add new security detection rules, edit [`apps/api/app/services/audit_engine.py`](apps/api/app/services/audit_engine.py:112):
+
+```python
+FindingMatch(
+    title_en="Your rule title",
+    title_zh="规则标题",
+    category="your-category",
+    severity="critical",  # critical, high, medium, low
+    summary_en="Description in English",
+    summary_zh="中文描述",
+    pattern=re.compile(r"your-regex-pattern"),
+    chain_en=["Step 1", "Step 2", "Step 3"],
+    chain_zh=["步骤1", "步骤2", "步骤3"],
+),
+```
+
+### Adding New Languages
+
+1. Add language detection in [`guess_language()`](apps/api/app/services/audit_engine.py:202)
+2. Add endpoint discovery logic in [`discover_endpoints()`](apps/api/app/services/audit_engine.py:505)
+3. Add dependency extraction in [`collect_dependencies()`](apps/api/app/services/audit_engine.py:317)
+
+### Frontend Development
+
+The frontend uses Vue 3 with TypeScript. Key files:
+
+- [`App.vue`](apps/web/src/App.vue) - Root component
+- [`AppShell.vue`](apps/web/src/components/AppShell.vue) - Main layout
+- [`router/index.ts`](apps/web/src/router/index.ts) - Route definitions
+- [`i18n/messages.ts`](apps/web/src/i18n/messages.ts) - Translations
 
 ## Roadmap
 
@@ -267,6 +368,8 @@ docker compose up --build
 - [x] Java dependency fingerprinting and exploit-chain recognition
 - [x] False-positive control reporting
 - [x] Bilingual README and bilingual UI switching
+- [x] Enhanced security detection rules (SQL injection, XSS, SSRF, Path Traversal, etc.)
+- [x] Improved UI/UX with animations and visual feedback
 - [ ] persistent repository and audit history storage
 - [ ] deeper AST and dataflow engines across more languages
 - [ ] breakpoint-oriented runtime executor
@@ -298,3 +401,11 @@ This README intentionally uses GitHub-native presentation elements:
 - bilingual switching
 
 The goal is a repository front page that reads like a serious product surface instead of a placeholder.
+
+### Contributing
+
+Contributions are welcome! Please feel free to submit issues and pull requests.
+
+### License
+
+This project is currently in Alpha stage. License terms will be announced before the first stable release.

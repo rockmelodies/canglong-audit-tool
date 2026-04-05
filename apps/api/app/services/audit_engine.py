@@ -118,19 +118,71 @@ FINDING_RULES = [
         summary_en="User-controlled data may reach an operating-system command invocation.",
         summary_zh="用户可控数据可能流入操作系统命令执行位置。",
         pattern=re.compile(
-            r"(subprocess\.(run|Popen|call)\([^)]*shell\s*=\s*True|os\.system\(|Runtime\.getRuntime\(\)\.exec\(|ProcessBuilder\s*\()"
+            r"(subprocess\.(run|Popen|call)\([^)]*shell\s*=\s*True|os\.system\(|Runtime\.getRuntime\(\)\.exec\(|ProcessBuilder\s*\(|exec\s*\(|system\s*\(|passthru\s*\(|shell_exec\s*\()"
         ),
         chain_en=["Ingress parameter", "Unsafe shell bridge", "Command sink"],
         chain_zh=["入口参数", "危险 Shell 桥接", "命令执行落点"],
     ),
     FindingMatch(
-        title_en="Potential unsafe deserialization",
+        title_en="Potential SQL injection",
+        title_zh="疑似SQL注入",
+        category="sql-injection",
+        severity="critical",
+        summary_en="User input may be concatenated into SQL queries without proper parameterization.",
+        summary_zh="用户输入可能未经参数化处理直接拼接到SQL查询中。",
+        pattern=re.compile(
+            r"(execute\s*\(\s*['\"]\s*\+|query\s*\(\s*['\"]\s*\+|\.execute\s*\([^)]*\+|\.query\s*\([^)]*\+|SELECT.*FROM.*WHERE.*\+|INSERT.*INTO.*VALUES.*\+|UPDATE.*SET.*\+|DELETE.*FROM.*\+)"
+        ),
+        chain_en=["User input", "String concatenation", "SQL query"],
+        chain_zh=["用户输入", "字符串拼接", "SQL查询"],
+    ),
+    FindingMatch(
+        title_en="Potential XSS vulnerability",
+        title_zh="疑似XSS漏洞",
+        category="xss",
+        severity="high",
+        summary_en="Unsanitized user input may be rendered directly into web pages.",
+        summary_zh="未经净化的用户输入可能直接渲染到网页中。",
+        pattern=re.compile(
+            r"(innerHTML\s*=|outerHTML\s*=|document\.write\s*\(|\.html\s*\(|dangerouslySetInnerHTML|v-html\s*=|ng-bind-html\s*=)"
+        ),
+        chain_en=["User input", "Direct rendering", "Browser execution"],
+        chain_zh=["用户输入", "直接渲染", "浏览器执行"],
+    ),
+    FindingMatch(
+        title_en="Potential SSRF vulnerability",
+        title_zh="疑似SSRF漏洞",
+        category="ssrf",
+        severity="high",
+        summary_en="User-controlled URLs may be fetched by the server without proper validation.",
+        summary_zh="用户可控的URL可能被服务器直接请求而未经验证。",
+        pattern=re.compile(
+            r"(requests\.(get|post|put|delete|patch)\(|urllib\.(request\.|urlopen\(|fetch\s*\(|http\.get\s*\(|axios\.(get|post|put|delete|patch)\(|HttpClient\.request\s*\()"
+        ),
+        chain_en=["User URL", "Server-side request", "Internal network access"],
+        chain_zh=["用户URL", "服务端请求", "内网访问"],
+    ),
+    FindingMatch(
+        title_en="Potential path traversal",
+        title_zh="疑似路径遍历",
+        category="path-traversal",
+        severity="high",
+        summary_en="User input may be used to access files outside the intended directory.",
+        summary_zh="用户输入可能被用于访问预期目录之外的文件。",
+        pattern=re.compile(
+            r"(open\s*\([^)]*\+|readfile\s*\([^)]*\+|file_get_contents\s*\([^)]*\+|include\s*\([^)]*\+|require\s*\([^)]*\+|File\s*\([^)]*\+|Path\s*\([^)]*\+)"
+        ),
+        chain_en=["User input", "File path", "Arbitrary file access"],
+        chain_zh=["用户输入", "文件路径", "任意文件访问"],
+    ),
+    FindingMatch(
+        title_en="Potential insecure deserialization",
         title_zh="疑似不安全反序列化",
         category="insecure-deserialization",
         severity="critical",
         summary_en="Serialized or dynamic type input appears to be reconstructed without strong safety controls.",
         summary_zh="序列化或动态类型输入疑似在缺少强约束的情况下被重建。",
-        pattern=re.compile(r"(pickle\.loads\(|yaml\.load\(|ObjectInputStream|readObject\(|enableDefaultTyping)"),
+        pattern=re.compile(r"(pickle\.loads\(|yaml\.load\(|ObjectInputStream|readObject\(|enableDefaultTyping|\.deserialize\s*\(|JSON\.parseObject\s*\()"),
         chain_en=["Untrusted payload", "Deserializer", "Reachable gadget or object graph"],
         chain_zh=["不可信载荷", "反序列化器", "可达 Gadget 或对象图"],
     ),
@@ -141,9 +193,35 @@ FINDING_RULES = [
         severity="medium",
         summary_en="Weak or legacy hash primitives are present in security-sensitive code.",
         summary_zh="安全敏感路径中出现弱哈希或过时加密原语。",
-        pattern=re.compile(r"(md5\(|sha1\(|MessageDigest\.getInstance\(\"(MD5|SHA-1)\"\))"),
+        pattern=re.compile(r"(md5\(|sha1\(|MessageDigest\.getInstance\(\"(MD5|SHA-1)\"\)|hash\s*\(\s*['\"]md5|hash\s*\(\s*['\"]sha1)"),
         chain_en=["Credential material", "Weak digest", "Collision or downgrade risk"],
         chain_zh=["凭证材料", "弱摘要算法", "碰撞或降级风险"],
+    ),
+    FindingMatch(
+        title_en="Potential hardcoded credentials",
+        title_zh="疑似硬编码凭证",
+        category="hardcoded-credentials",
+        severity="high",
+        summary_en="Credentials or API keys may be hardcoded in source files.",
+        summary_zh="凭证或API密钥可能硬编码在源文件中。",
+        pattern=re.compile(
+            r"(password\s*=\s*['\"][^'\"]{8,}['\"]|api_key\s*=\s*['\"][^'\"]{20,}['\"]|secret\s*=\s*['\"][^'\"]{16,}['\"]|token\s*=\s*['\"][^'\"]{20,}['\"])"
+        ),
+        chain_en=["Hardcoded secret", "Source code", "Credential exposure"],
+        chain_zh=["硬编码密钥", "源代码", "凭证泄露"],
+    ),
+    FindingMatch(
+        title_en="Potential insecure random number generation",
+        title_zh="疑似不安全的随机数生成",
+        category="insecure-random",
+        severity="medium",
+        summary_en="Weak random number generators may be used for security-sensitive operations.",
+        summary_zh="安全敏感操作中可能使用了弱随机数生成器。",
+        pattern=re.compile(
+            r"(Math\.random\s*\(|random\.random\s*\(|rand\s*\(\)|mt_rand\s*\(\)|Random\s*\(\))"
+        ),
+        chain_en=["Weak RNG", "Security context", "Predictable values"],
+        chain_zh=["弱随机数生成器", "安全上下文", "可预测值"],
     ),
     FindingMatch(
         title_en="Potential auth bypass branch",
@@ -152,9 +230,35 @@ FINDING_RULES = [
         severity="high",
         summary_en="A route or security branch appears to allow unauthenticated access.",
         summary_zh="路由或安全分支疑似允许未认证访问。",
-        pattern=re.compile(r"(@PermitAll|permitAll\(|skipAuth|AllowAnonymous|anonymousAccess)"),
+        pattern=re.compile(r"(@PermitAll|permitAll\(|skipAuth|AllowAnonymous|anonymousAccess|@NoAuth|bypassAuth)"),
         chain_en=["Ingress route", "Guard exception", "Protected capability exposed"],
         chain_zh=["入口路由", "鉴权例外", "受保护能力暴露"],
+    ),
+    FindingMatch(
+        title_en="Potential information disclosure",
+        title_zh="疑似信息泄露",
+        category="info-disclosure",
+        severity="medium",
+        summary_en="Sensitive information may be exposed through error messages or debug output.",
+        summary_zh="敏感信息可能通过错误消息或调试输出泄露。",
+        pattern=re.compile(
+            r"(print\s*\([^)]*exception|console\.log\s*\([^)]*error|console\.error\s*\(|debug\s*=\s*True|DEBUG\s*=\s*True|stacktrace|traceback\.print_exc)"
+        ),
+        chain_en=["Error output", "Sensitive data", "Information leak"],
+        chain_zh=["错误输出", "敏感数据", "信息泄露"],
+    ),
+    FindingMatch(
+        title_en="Potential insecure file upload",
+        title_zh="疑似不安全的文件上传",
+        category="insecure-upload",
+        severity="high",
+        summary_en="File uploads may not have proper validation on file type or content.",
+        summary_zh="文件上传可能缺少对文件类型或内容的适当验证。",
+        pattern=re.compile(
+            r"(upload\s*\(|save_uploaded_file|FileUpload|@PostMapping.*upload|multipart/form-data)"
+        ),
+        chain_en=["File upload", "Missing validation", "Arbitrary file execution"],
+        chain_zh=["文件上传", "缺少验证", "任意文件执行"],
     ),
 ]
 

@@ -11,8 +11,11 @@
 
       <nav class="nav">
         <RouterLink v-for="item in navItems" :key="item.to" :to="item.to" class="nav-link">
-          <span>{{ item.label }}</span>
-          <small>{{ item.meta }}</small>
+          <span class="nav-icon">{{ item.icon }}</span>
+          <div class="nav-content">
+            <span>{{ item.label }}</span>
+            <small>{{ item.meta }}</small>
+          </div>
         </RouterLink>
       </nav>
 
@@ -40,6 +43,7 @@
       </div>
 
       <button type="button" class="logout-button" @click="handleLogout">
+        <span class="logout-icon">🚪</span>
         {{ t('shell.logout') }}
       </button>
     </aside>
@@ -60,10 +64,11 @@ const router = useRouter();
 const { locale, locales, setLocale, t } = useI18n();
 
 const navItems = computed(() => [
-  { to: '/overview', label: t('shell.nav.overviewLabel'), meta: t('shell.nav.overviewMeta') },
-  { to: '/workspace', label: t('shell.nav.workspaceLabel'), meta: t('shell.nav.workspaceMeta') },
-  { to: '/missions', label: t('shell.nav.missionsLabel'), meta: t('shell.nav.missionsMeta') },
-  { to: '/settings', label: t('shell.nav.settingsLabel'), meta: t('shell.nav.settingsMeta') },
+  { to: '/overview', label: t('shell.nav.overviewLabel'), meta: t('shell.nav.overviewMeta'), icon: '📊' },
+  { to: '/workspace', label: t('shell.nav.workspaceLabel'), meta: t('shell.nav.workspaceMeta'), icon: '🔧' },
+  { to: '/missions', label: t('shell.nav.missionsLabel'), meta: t('shell.nav.missionsMeta'), icon: '🎯' },
+  { to: '/users', label: t('shell.nav.usersLabel'), meta: t('shell.nav.usersMeta'), icon: '👥' },
+  { to: '/settings', label: t('shell.nav.settingsLabel'), meta: t('shell.nav.settingsMeta'), icon: '⚙️' },
 ]);
 
 function handleLogout() {
@@ -73,147 +78,338 @@ function handleLogout() {
 </script>
 
 <style scoped>
+/* ============================================
+   App Shell - Commercial Design System
+   应用外壳 - 商业化设计系统
+   ============================================ */
+
+/* Shell Layout / 外壳布局 */
 .shell {
   display: grid;
   grid-template-columns: 300px minmax(0, 1fr);
-  gap: 24px;
+  gap: var(--space-6);
   min-height: 100vh;
-  padding: 24px;
+  padding: var(--space-6);
 }
 
+/* Sidebar / 侧边栏 */
 .sidebar {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--space-5);
   position: sticky;
-  top: 24px;
-  height: calc(100vh - 48px);
+  top: var(--space-6);
+  height: calc(100vh - var(--space-6) * 2);
+  overflow-y: auto;
+  padding: var(--space-5);
+  border-radius: var(--radius-xl);
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(12px);
 }
 
+/* Brand Section / 品牌区域 */
 .brand {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--space-3);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--surface-border);
 }
 
 .brand-mark {
   display: grid;
   place-items: center;
-  width: 54px;
-  height: 54px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, rgba(255, 122, 26, 0.95), rgba(0, 212, 170, 0.9));
-  color: #04110f;
-  font-size: 1.5rem;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-lg);
+  background: var(--gradient-primary);
+  color: white;
+  font-size: var(--text-2xl);
   font-weight: 800;
+  box-shadow: var(--shadow-md), var(--shadow-glow-primary);
 }
 
 .brand h1 {
-  margin: 4px 0 0;
-  font-size: 1.25rem;
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
+.brand .eyebrow {
+  font-size: var(--text-xs);
+  color: var(--color-primary);
+  letter-spacing: 0.15em;
+}
+
+/* Navigation / 导航 */
 .nav {
-  display: grid;
-  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 
 .nav-link {
-  display: grid;
-  gap: 2px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
   text-decoration: none;
-  background: rgba(255, 255, 255, 0.03);
+  background: transparent;
   border: 1px solid transparent;
-  transition: 180ms ease;
+  transition: all var(--transition-fast);
+}
+
+.nav-icon {
+  font-size: var(--text-xl);
+  width: 32px;
+  text-align: center;
+  opacity: 0.8;
+}
+
+.nav-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.nav-content span {
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
 .nav-link small {
-  color: var(--text-dim);
+  color: var(--text-tertiary);
+  font-size: var(--text-xs);
 }
 
 .nav-link.router-link-active {
-  border-color: rgba(0, 212, 170, 0.45);
-  background: rgba(0, 212, 170, 0.08);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  background: var(--color-primary-light);
+  border-color: rgba(59, 130, 246, 0.3);
 }
 
-.nav-link:hover {
-  transform: translateY(-1px);
+.nav-link.router-link-active .nav-icon {
+  opacity: 1;
 }
 
+.nav-link:hover:not(.router-link-active) {
+  background: var(--bg-hover);
+  transform: translateX(4px);
+}
+
+/* Language Card / 语言卡片 */
 .language-card {
-  padding: 18px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--surface-border);
+}
+
+.language-card .eyebrow {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
 }
 
 .language-card h3 {
-  margin: 8px 0 0;
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-base);
+  color: var(--text-primary);
 }
 
 .language-actions {
   display: flex;
-  gap: 10px;
-  margin-top: 18px;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
 }
 
 .language-button {
   flex: 1;
-  padding: 10px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text-main);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-weight: 500;
   cursor: pointer;
-  transition: 180ms ease;
+  transition: all var(--transition-fast);
 }
 
 .language-button.active {
-  border-color: rgba(0, 212, 170, 0.45);
-  background: rgba(0, 212, 170, 0.12);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+  box-shadow: var(--shadow-md);
 }
 
-.language-button:hover {
-  transform: translateY(-1px);
+.language-button:hover:not(.active) {
+  background: var(--bg-hover);
+  border-color: var(--surface-border-hover);
+  color: var(--text-primary);
 }
 
+/* Sidebar Card / 侧边栏卡片 */
 .sidebar-card {
-  padding: 18px;
-  border-radius: 20px;
-  background: linear-gradient(180deg, rgba(255, 122, 26, 0.14), rgba(255, 255, 255, 0.02));
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-primary-light) 0%, transparent 100%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.sidebar-card .eyebrow {
+  font-size: var(--text-xs);
+  color: var(--color-primary);
 }
 
 .sidebar-card h3 {
-  margin: 8px 0;
+  margin: var(--space-2) 0;
+  font-size: var(--text-base);
+  color: var(--text-primary);
 }
 
 .sidebar-card p:last-child {
   margin-bottom: 0;
-  color: var(--text-dim);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: 1.6;
 }
 
+/* Logout Button / 登出按钮 */
 .logout-button {
   margin-top: auto;
-  padding: 14px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text-main);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-weight: 500;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  transition: all var(--transition-fast);
 }
 
+.logout-button:hover {
+  background: var(--color-danger-light);
+  border-color: rgba(244, 63, 94, 0.3);
+  color: var(--color-danger);
+}
+
+.logout-icon {
+  font-size: var(--text-lg);
+}
+
+/* Content Area / 内容区域 */
 .content {
   min-width: 0;
+  flex: 1;
 }
 
-@media (max-width: 980px) {
+/* Responsive Design / 响应式设计 */
+@media (max-width: 1024px) {
   .shell {
     grid-template-columns: 1fr;
+    padding: var(--space-4);
+  }
+  
+  .sidebar {
+    position: relative;
+    top: 0;
+    height: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+  
+  .brand {
+    flex: 1;
+    min-width: 200px;
+    border-bottom: none;
+    padding-bottom: 0;
+    border-right: 1px solid var(--surface-border);
+    padding-right: var(--space-4);
+  }
+  
+  .nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  
+  .nav-link {
+    padding: var(--space-2) var(--space-3);
+  }
+  
+  .nav-content small {
+    display: none;
+  }
+  
+  .language-card,
+  .sidebar-card {
+    flex: 1;
+    min-width: 200px;
+  }
+  
+  .logout-button {
+    flex: 1;
+    justify-content: center;
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .shell {
+    padding: var(--space-3);
+    gap: var(--space-4);
+  }
+  
+  .sidebar {
+    padding: var(--space-3);
+  }
+  
+  .brand {
+    flex: none;
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--surface-border);
+    padding-right: 0;
+    padding-bottom: var(--space-3);
+  }
+  
+  .nav {
+    width: 100%;
+  }
+  
+  .nav-link {
+    flex: 1;
+    justify-content: center;
+  }
+  
+  .nav-icon {
+    width: auto;
+  }
+  
+  .nav-content {
+    display: none;
+  }
+  
+  .language-card,
+  .sidebar-card {
+    width: 100%;
+  }
+  
+  .logout-button {
+    width: 100%;
+  }
+}
+</style>
   }
 
   .sidebar {

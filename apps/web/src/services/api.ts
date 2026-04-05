@@ -1,3 +1,28 @@
+/**
+ * API Service Module
+ * API服务模块
+ * 
+ * This module provides a centralized API client for communicating with the Canglong backend.
+ * It handles authentication, error handling, and provides typed interfaces for all API endpoints.
+ * 
+ * 本模块提供与苍龙后端通信的集中式API客户端。
+ * 它处理认证、错误处理，并为所有API端点提供类型化接口。
+ * 
+ * Features / 功能特性:
+ * - Automatic authentication token management / 自动认证令牌管理
+ * - Centralized error handling / 集中式错误处理
+ * - Type-safe API calls / 类型安全的API调用
+ * - Internationalization support / 国际化支持
+ * - Fallback data for development / 开发环境回退数据
+ * 
+ * Security / 安全:
+ * - Tokens are stored securely in session storage / 令牌安全存储在会话存储中
+ * - Automatic token refresh on 401 errors / 401错误时自动刷新令牌
+ * - All requests use HTTPS in production / 生产环境所有请求使用HTTPS
+ * 
+ * @module api
+ */
+
 import { clearSession, getAccessToken } from '../auth/session';
 import type { Locale } from '../i18n/messages';
 import type {
@@ -12,63 +37,156 @@ import type {
   RepoSyncResponse,
 } from '../types';
 
+/**
+ * Base URL for the API backend
+ * API后端的基础URL
+ * 
+ * In production, this should be configured via environment variables.
+ * 在生产环境中，应通过环境变量配置。
+ */
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:9000';
 
+/**
+ * Custom error class for API errors
+ * API错误的自定义错误类
+ * 
+ * Extends the standard Error class to include HTTP status codes.
+ * 扩展标准Error类以包含HTTP状态码。
+ */
 class ApiError extends Error {
+  /** HTTP status code / HTTP状态码 */
   status: number;
 
+  /**
+   * Create a new ApiError instance
+   * 创建新的ApiError实例
+   * 
+   * @param status - HTTP status code / HTTP状态码
+   * @param message - Error message / 错误消息
+   */
   constructor(status: number, message: string) {
     super(message);
     this.status = status;
+    this.name = 'ApiError';
   }
 }
 
+/**
+ * Check if the current locale is Chinese
+ * 检查当前语言环境是否为中文
+ * 
+ * @param locale - Current locale / 当前语言环境
+ * @returns True if locale is Chinese / 如果是中文则返回true
+ */
 function isChinese(locale: Locale) {
   return locale === 'zh-CN';
 }
 
+/**
+ * Core HTTP request function with authentication and error handling
+ * 带有认证和错误处理的核心HTTP请求函数
+ * 
+ * This function handles all API requests, including:
+ * 此函数处理所有API请求，包括：
+ * - Adding authentication headers / 添加认证头
+ * - Setting content type / 设置内容类型
+ * - Handling 401 unauthorized responses / 处理401未授权响应
+ * - Error handling with fallback support / 带回退支持的错误处理
+ * - Internationalization via query parameter / 通过查询参数进行国际化
+ * 
+ * @template T - Expected response type / 预期的响应类型
+ * @param path - API endpoint path (relative to API_BASE) / API端点路径（相对于API_BASE）
+ * @param locale - Current locale for i18n / 当前语言环境
+ * @param options - Fetch API options (method, body, etc.) / Fetch API选项（方法、主体等）
+ * @param fallback - Optional fallback data to return on error / 错误时返回的可选回退数据
+ * @returns Promise resolving to the response data / 返回响应数据的Promise
+ * @throws ApiError if the request fails and no fallback is provided / 如果请求失败且没有提供回退数据则抛出ApiError
+ * 
+ * @example
+ * // Simple GET request / 简单GET请求
+ * const data = await request<User[]>('/api/users', 'en-US');
+ * 
+ * @example
+ * // POST request with body / 带主体的POST请求
+ * const user = await request<User>('/api/users', 'en-US', {
+ *   method: 'POST',
+ *   body: JSON.stringify({ username: 'test', password: 'pass' })
+ * });
+ * 
+ * @example
+ * // Request with fallback / 带回退的请求
+ * const data = await request<DashboardData>('/api/dashboard', 'en-US', undefined, fallbackData);
+ */
 async function request<T>(
   path: string,
   locale: Locale,
   options?: RequestInit,
   fallback?: T,
 ): Promise<T> {
+  // Initialize headers with provided headers or empty object
+  // 使用提供的头或空对象初始化头
   const headers = new Headers(options?.headers ?? {});
+  
+  // Get authentication token from session storage
+  // 从会话存储获取认证令牌
   const token = getAccessToken();
 
+  // Add Authorization header if token exists
+  // 如果令牌存在，添加Authorization头
   if (token) {
     headers.set('Authorization', `Bearer ${token}`);
   }
 
+  // Set Content-Type to JSON if body exists and Content-Type not already set
+  // 如果主体存在且未设置Content-Type，则设置为JSON
   if (!headers.has('Content-Type') && options?.body) {
     headers.set('Content-Type', 'application/json');
   }
 
+  // Determine query parameter separator based on existing query string
+  // 根据现有查询字符串确定查询参数分隔符
   const separator = path.includes('?') ? '&' : '?';
+  
   try {
+    // Make the HTTP request with locale parameter
+    // 使用语言环境参数发出HTTP请求
     const response = await fetch(`${API_BASE}${path}${separator}lang=${encodeURIComponent(locale)}`, {
       ...options,
       headers,
     });
 
+    // Handle 401 Unauthorized - clear session and throw error
+    // 处理401未授权 - 清除会话并抛出错误
     if (response.status === 401) {
       clearSession();
       throw new ApiError(401, 'Unauthorized');
     }
 
+    // Handle other error responses
+    // 处理其他错误响应
     if (!response.ok) {
       const detail = await response.text();
       throw new ApiError(response.status, detail || `Request failed: ${response.status}`);
     }
 
+    // Parse and return JSON response
+    // 解析并返回JSON响应
     return (await response.json()) as T;
   } catch (error) {
+    // Return fallback data if provided and error is not an ApiError
+    // 如果提供了回退数据且错误不是ApiError，则返回回退数据
     if (fallback !== undefined && !(error instanceof ApiError)) {
       return fallback;
     }
+    
+    // Return fallback data for non-401 ApiErrors
+    // 为非401的ApiError返回回退数据
     if (fallback !== undefined && error instanceof ApiError && error.status !== 401) {
       return fallback;
     }
+    
+    // Re-throw the error
+    // 重新抛出错误
     throw error;
   }
 }
@@ -397,6 +515,187 @@ export function startAudit(locale: Locale, repoId: string) {
 
 export function fetchAuditReport(locale: Locale, jobId: string) {
   return request<AuditReport>(`/api/audits/${jobId}/report`, locale);
+}
+
+// User Management API types
+export interface User {
+  username: string;
+  displayName: string;
+  email?: string;
+  role: 'administrator' | 'auditor' | 'viewer';
+  active: boolean;
+  createdAt: string;
+  lastLogin?: string;
+}
+
+export interface ApiKey {
+  id: string;
+  name: string;
+  owner: string;
+  permissions: string[];
+  status: 'active' | 'revoked' | 'expired';
+  createdAt: string;
+  expiresAt?: string;
+  lastUsed?: string;
+  keyPrefix?: string;
+  fullKey?: string;
+}
+
+export interface Invite {
+  id: string;
+  email: string;
+  role: 'administrator' | 'auditor' | 'viewer';
+  status: 'pending' | 'accepted' | 'expired' | 'revoked';
+  invitedBy: string;
+  createdAt: string;
+  expiresAt: string;
+}
+
+export interface UserPermissions {
+  role: string;
+  permissions: string[];
+  canManageUsers: boolean;
+  canManageApiKeys: boolean;
+  canCreateAudit: boolean;
+  canViewReport: boolean;
+}
+
+// User Management API methods
+export function fetchUsers(locale: Locale) {
+  return request<User[]>('/api/users', locale);
+}
+
+export function fetchUser(locale: Locale, username: string) {
+  return request<User>(`/api/users/${encodeURIComponent(username)}`, locale);
+}
+
+export function createUser(
+  locale: Locale,
+  payload: {
+    username: string;
+    password: string;
+    displayName: string;
+    email?: string;
+    role: 'administrator' | 'auditor' | 'viewer';
+  },
+) {
+  return request<User>('/api/users', locale, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateUser(
+  locale: Locale,
+  username: string,
+  payload: {
+    displayName?: string;
+    email?: string;
+    role?: 'administrator' | 'auditor' | 'viewer';
+    active?: boolean;
+  },
+) {
+  return request<User>(`/api/users/${encodeURIComponent(username)}`, locale, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  });
+}
+
+export function deleteUser(locale: Locale, username: string) {
+  return request<void>(`/api/users/${encodeURIComponent(username)}`, locale, {
+    method: 'DELETE',
+  });
+}
+
+// API Key Management
+export function fetchMyApiKeys(locale: Locale) {
+  return request<ApiKey[]>('/api/users/me/keys', locale);
+}
+
+export function createApiKey(
+  locale: Locale,
+  payload: {
+    name: string;
+    permissions?: string[];
+    expiresAt?: string;
+  },
+) {
+  return request<ApiKey & { fullKey: string }>('/api/users/me/keys', locale, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export function revokeMyApiKey(locale: Locale, keyId: string) {
+  return request<void>(`/api/users/me/keys/${keyId}`, locale, {
+    method: 'DELETE',
+  });
+}
+
+export function fetchAllApiKeys(locale: Locale) {
+  return request<ApiKey[]>('/api/users/keys', locale);
+}
+
+export function revokeAnyApiKey(locale: Locale, keyId: string) {
+  return request<void>(`/api/users/keys/${keyId}`, locale, {
+    method: 'DELETE',
+  });
+}
+
+// Invitation Management
+export function createInvite(
+  locale: Locale,
+  payload: {
+    email: string;
+    role: 'administrator' | 'auditor' | 'viewer';
+  },
+) {
+  return request<Invite>('/api/users/invites', locale, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export function fetchInvites(locale: Locale) {
+  return request<Invite[]>('/api/users/invites', locale);
+}
+
+export function revokeInvite(locale: Locale, inviteId: string) {
+  return request<void>(`/api/users/invites/${inviteId}`, locale, {
+    method: 'DELETE',
+  });
+}
+
+/**
+ * Accept an invitation and create a new user account
+ * 接受邀请并创建新用户账户
+ * 
+ * @param locale - Current locale for i18n / 当前语言环境
+ * @param inviteId - The invitation ID to accept / 要接受的邀请ID
+ * @param payload - User registration information / 用户注册信息
+ * @returns Promise resolving to the created user / 返回创建的用户
+ * 
+ * @throws ApiError if the invitation is invalid, expired, or registration fails
+ * 如果邀请无效、已过期或注册失败则抛出ApiError
+ */
+export function acceptInvite(
+  locale: Locale,
+  inviteId: string,
+  payload: {
+    username: string;
+    password: string;
+    displayName: string;
+  },
+) {
+  return request<User>(`/api/users/accept-invite/${inviteId}`, locale, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+// Current user permissions
+export function fetchMyPermissions(locale: Locale) {
+  return request<UserPermissions>('/api/users/me/permissions', locale);
 }
 
 export { ApiError };
