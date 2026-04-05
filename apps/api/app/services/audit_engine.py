@@ -157,7 +157,7 @@ FINDING_RULES = [
         summary_en="User-controlled URLs may be fetched by the server without proper validation.",
         summary_zh="用户可控的URL可能被服务器直接请求而未经验证。",
         pattern=re.compile(
-            r"(requests\.(get|post|put|delete|patch)\(|urllib\.(request\.|urlopen\(|fetch\s*\(|http\.get\s*\(|axios\.(get|post|put|delete|patch)\(|HttpClient\.request\s*\()"
+            r"(requests\.(get|post|put|delete|patch)\(|urllib\.request\.|urllib\.urlopen\(|fetch\s*\(|http\.get\s*\(|axios\.(get|post|put|delete|patch)\(|HttpClient\.request\s*\()"
         ),
         chain_en=["User URL", "Server-side request", "Internal network access"],
         chain_zh=["用户URL", "服务端请求", "内网访问"],
